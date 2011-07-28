@@ -1,0 +1,146 @@
+<?php
+
+/**
+ * @file
+ *
+ * Honeypot module, for deterring spam bots from completing Drupal forms.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function honeypot_menu() {
+  $items['admin/config/content/honeypot'] = array(
+    'title' => 'Honeypot configuration',
+    'description' => 'Configure Honeypot spam prevention and the forms on which Honeypot will be used.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('honeypot_admin_form'),
+    'access arguments' => array('administer honeypot'),
+    'file' => 'honeypot.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function honeypot_permission() {
+  return array(
+    'administer honeypot' => array(
+      'title' => t('Administer Honeypot-protected forms and settings'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Add Honeypot features to forms enabled in the Honeypot admin interface.
+ */
+function honeypot_form_alter(&$form, &$form_state, $form_id) {
+  // Don't use for maintenance mode forms (install, update, etc.).
+  if (defined('MAINTENANCE_MODE')) {
+    return;
+  }
+
+  // If configured to protect all forms, add protection to every form.
+  if (variable_get('honeypot_protect_all_forms', 0)) {
+    honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
+  }
+
+  // Otherwise add form protection to admin-configured forms.
+  else {
+    $forms_to_protect = honeypot_get_protected_forms();
+    foreach ($forms_to_protect as $protect_form_id) {
+      if ($form_id == $protect_form_id) {
+        honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
+      }
+    }
+  }
+}
+
+/**
+ * Build an array of all the protected forms on the site, by form_id.
+ *
+ * Currently only works for user_register_form. Pfft!
+ *
+ * @todo - Build query dynamically, using db_select...
+ */
+function honeypot_get_protected_forms() {
+  if (variable_get('honeypot_form_user_register_form', 0)) {
+    return array('user_register_form');
+  }
+  return array();
+}
+
+/**
+ * Form builder function to add different types of protection to forms.
+ *
+ * @param $options (array)
+ *   Array of options to be added to form. Currently accepts 'honeypot' and
+ *   'time_restriction'.
+ *
+ * @return $form_elements
+ *   Returns elements to be placed in a form's elements array to prevent spam.
+ */
+function honeypot_add_form_protection(&$form, &$form_state, $options = array()) {
+  // Build the honeypot element.
+  if (in_array('honeypot', $options)) {
+    // Get the element name (default is generic 'homepage').
+    $honeypot_element = variable_get('honeypot_element_name', 'homepage');
+
+    // Build the honeypot element.
+    $form[$honeypot_element] = array(
+      '#type' => 'textfield',
+      '#title' => t('Leave this field blank'),
+      '#size' => 60,
+      '#weight' => 100,
+      '#element_validate' => array('_honeypot_honeypot_validate'),
+      '#prefix' => '<div class="honeypot-textfield">',
+      '#suffix' => '</div>',
+    );
+    drupal_add_css('.honeypot-textfield { display: none; }', 'inline'); // Hide honeypot.
+  }
+
+  // Build the time restriction element (if it's not disabled).
+  if (in_array('honeypot', $options) && variable_get('honeypot_time_limit', 5) != 0) {
+    // Set the current time in a hidden value to be checked later.
+    $form['honeypot_time'] = array(
+      '#type' => 'hidden',
+      '#title' => t('Timestamp'),
+      '#default_value' => time(),
+      '#element_validate' => array('_honeypot_time_restriction_validate'),
+    );
+  }
+}
+
+/**
+ * Validate honeypot field.
+ */
+function _honeypot_honeypot_validate($element, &$form_state) {
+  // Get the honeypot field value.
+  $honeypot_value = $element['#value'];
+
+  // Make sure it's empty.
+  if (!empty($honeypot_value)) {
+    form_set_error('', t('There was a problem with your form submission. Please refresh the page and try again.'));
+  }
+}
+
+/**
+ * Validate honeypot's time restriction field.
+ */
+function _honeypot_time_restriction_validate($form, &$form_state) {
+  // Get the time value.
+  $honeypot_time = $form_state['values']['honeypot_time'];
+
+  // Get the honeypot_time_limit variable.
+  $time_limit = variable_get('honeypot_time_limit', 5);
+
+  // Make sure the current time - (honeypot_time_limit + form time value) is
+  // greater than 0. If not, throw an error.
+  if (time() < ($honeypot_time + $time_limit)) {
+    form_set_error('', t('There was a problem with your form submission. Please wait !limit seconds and try again.', array('!limit' => $time_limit)));
+  }
+}

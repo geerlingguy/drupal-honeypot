@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ *
+ * Install, update and uninstall functions for the FullCalendar Colors module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function honeypot_uninstall() {
+  db_delete('variable')
+    ->condition('name', db_like('honeypot_') . '%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
+}
