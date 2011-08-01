@@ -104,7 +104,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
   }
 
   // Build the time restriction element (if it's not disabled).
-  if (in_array('honeypot', $options) && variable_get('honeypot_time_limit', 5) != 0) {
+  if (in_array('time_restriction', $options) && variable_get('honeypot_time_limit', 5) != 0) {
     // Set the current time in a hidden value to be checked later.
     $form['honeypot_time'] = array(
       '#type' => 'hidden',
