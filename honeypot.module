@@ -94,13 +94,13 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
     $form[$honeypot_element] = array(
       '#type' => 'textfield',
       '#title' => t('Leave this field blank'),
-      '#size' => 60,
+      '#size' => 20,
       '#weight' => 100,
       '#element_validate' => array('_honeypot_honeypot_validate'),
       '#prefix' => '<div class="honeypot-textfield">',
       '#suffix' => '</div>',
     );
-    drupal_add_css('.honeypot-textfield { display: none; }', 'inline'); // Hide honeypot.
+    drupal_add_css('.honeypot-textfield { display: none !important; }', 'inline'); // Hide honeypot.
   }
 
   // Build the time restriction element (if it's not disabled).
