@@ -3,8 +3,16 @@
 /**
  * @file
  *
- * Install, update and uninstall functions for the FullCalendar Colors module.
+ * Install, update and uninstall functions for the Honeypot module.
  */
+
+/**
+ * Implements hook_update_N().
+ */
+function honeypot_update_7001() {
+  // Grant administrator the 'bypass honeypot protection' permission.
+  permissions_grant_permissions('administrator', array('bypass honeypot protection'));
+}
 
 /**
  * Implements hook_uninstall().

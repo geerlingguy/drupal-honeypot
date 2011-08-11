@@ -28,7 +28,12 @@ function honeypot_menu() {
 function honeypot_permission() {
   return array(
     'administer honeypot' => array(
-      'title' => t('Administer Honeypot-protected forms and settings'),
+      'title' => t('Administer Honeypot'),
+      'description' => t('Administer Honeypot-protected forms and settings'),
+    ),
+    'bypass honeypot protection' => array(
+      'title' => t('Bypass Honeypot protection'),
+      'description' => t('Bypass Honeypot form protection.'),
     ),
   );
 }
@@ -85,6 +90,13 @@ function honeypot_get_protected_forms() {
  *   Returns elements to be placed in a form's elements array to prevent spam.
  */
 function honeypot_add_form_protection(&$form, &$form_state, $options = array()) {
+  global $user;
+
+  // Don't add any protections if the user can bypass the Honeypot.
+  if (user_access('bypass honeypot protection')) {
+    return;
+  }
+
   // Build the honeypot element.
   if (in_array('honeypot', $options)) {
     // Get the element name (default is generic 'homepage').
