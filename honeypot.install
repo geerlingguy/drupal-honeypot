@@ -7,22 +7,9 @@
  */
 
 /**
- * Implements hook_update_N().
- */
-function honeypot_update_7001() {
-  $ret = array();
-
-  // Leaving this in because I had it in version 1.3. Silly me.
-
-  return $ret;
-}
-
-/**
  * Implements hook_uninstall().
  */
 function honeypot_uninstall() {
-  db_delete('variable')
-    ->condition('name', db_like('honeypot_') . '%', 'LIKE')
-    ->execute();
+  db_query("DELETE from {variable} WHERE name LIKE 'honeypot_%'");
   cache_clear_all('variables', 'cache_bootstrap');
 }

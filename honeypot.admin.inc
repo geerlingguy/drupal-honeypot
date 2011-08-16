@@ -9,7 +9,9 @@
 /**
  * Honeypot administration page.
  */
-function honeypot_admin_form($form, &$form_state) {
+function honeypot_admin_form($form) {
+  $form = array();
+
   // Honeypot Configuration.
   $form['configuration'] = array(
     '#type' => 'fieldset',

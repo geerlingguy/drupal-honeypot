@@ -1,0 +1,5 @@
+/* CSS for Honeypot Module. */
+
+.honeypot-textfield {
+  display: none !important;
+}

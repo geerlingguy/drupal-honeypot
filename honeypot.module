@@ -7,10 +7,10 @@
  */
 
 /**
- * Implements hook_menu().
+ * Implementation of hook_menu().
  */
 function honeypot_menu() {
-  $items['admin/config/content/honeypot'] = array(
+  $items['admin/content/honeypot'] = array(
     'title' => 'Honeypot configuration',
     'description' => 'Configure Honeypot spam prevention and the forms on which Honeypot will be used.',
     'page callback' => 'drupal_get_form',
@@ -23,23 +23,17 @@ function honeypot_menu() {
 }
 
 /**
- * Implements hook_permission().
+ * Implementation of hook_perm().
  */
-function honeypot_permission() {
+function honeypot_perm() {
   return array(
-    'administer honeypot' => array(
-      'title' => t('Administer Honeypot'),
-      'description' => t('Administer Honeypot-protected forms and settings'),
-    ),
-    'bypass honeypot protection' => array(
-      'title' => t('Bypass Honeypot protection'),
-      'description' => t('Bypass Honeypot form protection.'),
-    ),
+    'administer honeypot',
+    'bypass honeypot protection',
   );
 }
 
 /**
- * Implements hook_form_alter().
+ * Implementation of hook_form_alter().
  *
  * Add Honeypot features to forms enabled in the Honeypot admin interface.
  */
@@ -68,13 +62,13 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
 /**
  * Build an array of all the protected forms on the site, by form_id.
  *
- * Currently only works for user_register_form. Pfft!
+ * Currently only works for user_register. Pfft!
  *
  * @todo - Build query dynamically, using db_select...
  */
 function honeypot_get_protected_forms() {
   if (variable_get('honeypot_form_user_register_form', 0)) {
-    return array('user_register_form');
+    return array('user_register');
   }
   return array();
 }
@@ -112,7 +106,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
       '#prefix' => '<div class="honeypot-textfield">',
       '#suffix' => '</div>',
     );
-    drupal_add_css('.honeypot-textfield { display: none !important; }', 'inline'); // Hide honeypot.
+    drupal_add_css(drupal_get_path('module','honeypot') . '/css/honeypot.css', 'module'); // Hide honeypot.
   }
 
   // Build the time restriction element (if it's not disabled).
