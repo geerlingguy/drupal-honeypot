@@ -24,5 +24,10 @@ function honeypot_uninstall() {
   db_delete('variable')
     ->condition('name', db_like('honeypot_') . '%', 'LIKE')
     ->execute();
-  cache_clear_all('variables', 'cache_bootstrap');
+  $cache_tables = array('variables', 'cache_bootstrap');
+  foreach ($cache_tables as $table) {
+    if (db_table_exists($table)) {
+      cache_clear_all($table);
+    }
+  }
 }
