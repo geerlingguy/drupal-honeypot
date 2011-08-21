@@ -51,7 +51,11 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
 
   // If configured to protect all forms, add protection to every form.
   if (variable_get('honeypot_protect_all_forms', 0)) {
-    honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
+    // Don't protect system forms - only admins should have access, and system
+    // forms may be programmatically submitted by drush and other modules.
+    if (strpos($form_id, 'system_') === FALSE) {
+      honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
+    }
   }
 
   // Otherwise add form protection to admin-configured forms.
