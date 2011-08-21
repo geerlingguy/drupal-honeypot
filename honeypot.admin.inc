@@ -47,6 +47,12 @@ function honeypot_admin_form($form, &$form_state) {
     '#description' => t("Check the boxes next to individual forms on which you'd like Honeypot protection enabled."),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
+    '#states' => array(
+      // Hide this fieldset when all forms are protected.
+      'invisible' => array(
+        'input[name="honeypot_protect_all_forms"]' => array('checked' => TRUE),
+      ),
+    ),
   );
     $form['enabled_forms']['honeypot_form_user_register_form'] = array(
       '#type' => 'checkbox',
