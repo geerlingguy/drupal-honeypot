@@ -15,7 +15,7 @@ Configuration
 
 All settings for this module are on the Honeypot configuration page, under the
 Configuration section, in the Content authoring settings. You can visit the
-configuration page directly at admin/config/content/honeypot.
+configuration page directly at admin/settings/honeypot.
 
 
 Use in Your Own Forms

@@ -10,7 +10,7 @@
  * Implementation of hook_menu().
  */
 function honeypot_menu() {
-  $items['admin/content/honeypot'] = array(
+  $items['admin/settings/honeypot'] = array(
     'title' => 'Honeypot configuration',
     'description' => 'Configure Honeypot spam prevention and the forms on which Honeypot will be used.',
     'page callback' => 'drupal_get_form',
