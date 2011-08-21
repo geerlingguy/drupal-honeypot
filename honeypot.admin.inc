@@ -67,10 +67,12 @@ function honeypot_admin_form_validate($form, &$form_state) {
   if ((is_numeric($time_limit) && $time_limit > 0) || $time_limit === '0') {
     if (ctype_digit($time_limit)) {
       // Good to go.
-    } else {
+    }
+    else {
       form_set_error('honeypot_time_limit', t("The time limit must be a positive integer or 0."));
     }
-  } else {
+  }
+  else {
     form_set_error('honeypot_time_limit', t("The time limit must be a positive integer or 0."));
   }
 }

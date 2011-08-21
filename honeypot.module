@@ -153,6 +153,6 @@ function _honeypot_time_restriction_validate($form, &$form_state) {
   // Make sure the current time - (honeypot_time_limit + form time value) is
   // greater than 0. If not, throw an error.
   if (time() < ($honeypot_time + $time_limit)) {
-    form_set_error('', t('There was a problem with your form submission. Please wait !limit seconds and try again.', array('!limit' => $time_limit)));
+    form_set_error('', t('There was a problem with your form submission. Please wait @limit seconds and try again.', array('@limit' => $time_limit)));
   }
 }
