@@ -76,15 +76,32 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
 /**
  * Build an array of all the protected forms on the site, by form_id.
  *
- * Currently only works for user_register_form. Pfft!
- *
- * @todo - Build query dynamically, using db_select...
+ * @todo - Add in API call/hook to allow modules to add to this array.
  */
 function honeypot_get_protected_forms() {
-  if (variable_get('honeypot_form_user_register_form', 0)) {
-    return array('user_register_form');
+  $forms = &drupal_static(__FUNCTION__);
+
+  // If the data isn't already in memory, get from cache or look it up fresh.
+  if (!isset($forms)) {
+    if ($cache = cache_get('honeypot_protected_forms')) {
+      $forms = $cache->data;
+    }
+    else {
+      // Look up all the honeypot forms in the variables table.
+      $result = db_query("SELECT name FROM {variable} WHERE name LIKE '%honeypot_form_%'")->fetchCol();
+      // Add each form that's enabled to the $forms array.
+      foreach ($result as $variable) {
+        if (variable_get($variable, 0)) {
+          $forms[] = substr($variable, 14);
+        }
+      }
+
+      // Save the cached data.
+      cache_set('honeypot_protected_forms', $forms, 'cache');
+    }
   }
-  return array();
+
+  return $forms;
 }
 
 /**
