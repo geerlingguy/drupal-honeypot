@@ -50,12 +50,44 @@ function honeypot_admin_form($form) {
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
+
+    // Generic forms.
+    $form['enabled_forms']['general_forms'] = array('#value' => '<h5>' . t('General Forms') . '</h5>');
+    // User register form.
     $form['enabled_forms']['honeypot_form_user_register_form'] = array(
       '#type' => 'checkbox',
       '#title' => t('User Registration form'),
       '#default_value' => variable_get('honeypot_form_user_register_form', 0),
     );
-    // @todo - Add node forms, comment forms, etc...
+    // User password form.
+    $form['enabled_forms']['honeypot_form_user_pass'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('User Password Reset form'),
+      '#default_value' => variable_get('honeypot_form_user_pass', 0),
+    );
+
+    // Node forms.
+    $types = node_get_types();
+    $form['enabled_forms']['node_forms'] = array('#value' => '<h5>' . t('Node Forms') . '</h5>');
+    foreach ($types as $type) {
+      $id = 'honeypot_form_' . $type->type . '_node_form';
+      $form['enabled_forms'][$id] = array(
+        '#type' => 'checkbox',
+        '#title' => t('@name node form', array('@name' => $type->name)),
+        '#default_value' => variable_get($id, 0),
+      );
+    }
+
+    // Comment forms.
+    $form['enabled_forms']['comment_forms'] = array('#value' => '<h5>' . t('Comment Forms') . '</h5>');
+    $form['enabled_forms']['honeypot_form_comment_form'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Comment forms (all)'),
+      '#default_value' => variable_get('honeypot_form_comment_form', 0),
+    );
+
+  // Add our own submit handler to clear honeypot's form cache on save.
+  $form['#submit'][] = 'honeypot_admin_form_submit';
 
   return system_settings_form($form);
 }
@@ -77,4 +109,11 @@ function honeypot_admin_form_validate($form, &$form_state) {
   else {
     form_set_error('honeypot_time_limit', t("The time limit must be a positive integer or 0."));
   }
+}
+
+/**
+ * Clear the honeypot form cache on submit.
+ */
+function honeypot_admin_form_submit($form, &$form_state) {
+  cache_clear_all('honeypot_protected_forms', 'cache');
 }
