@@ -14,7 +14,7 @@ function honeypot_uninstall() {
   $cache_tables = array('variables', 'cache_bootstrap');
   foreach ($cache_tables as $table) {
     if (db_table_exists($table)) {
-      cache_clear_all($table);
+      cache_clear_all($table, 'cache');
     }
   }
 }
