@@ -57,8 +57,7 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
   }
 
   // Otherwise add form protection to admin-configured forms.
-  else {
-    $forms_to_protect = honeypot_get_protected_forms();
+  elseif ($forms_to_protect = honeypot_get_protected_forms()) {
     foreach ($forms_to_protect as $protect_form_id) {
       if ($form_id == $protect_form_id) {
         honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
