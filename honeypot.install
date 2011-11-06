@@ -27,3 +27,17 @@ function honeypot_uninstall() {
     }
   }
 }
+
+/**
+ * Update Honeypot user registration form variable.
+ */
+function honeypot_update_6100() {
+  // Get the existing value of the user registration form protection.
+  $user_registration_form_value = variable_get('honeypot_form_user_register_form', 0);
+  // Delete the old variable.
+  variable_del('honeypot_form_user_register_form');
+  // Create a new variable with the value from the old variable.
+  variable_set('honeypot_form_user_register', $user_registration_form_value);
+  // Must at least return an empty array to prevent errors.
+  return array();
+}

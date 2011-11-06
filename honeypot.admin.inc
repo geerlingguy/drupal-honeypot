@@ -54,10 +54,10 @@ function honeypot_admin_form($form) {
     // Generic forms.
     $form['enabled_forms']['general_forms'] = array('#value' => '<h5>' . t('General Forms') . '</h5>');
     // User register form.
-    $form['enabled_forms']['honeypot_form_user_register_form'] = array(
+    $form['enabled_forms']['honeypot_form_user_register'] = array(
       '#type' => 'checkbox',
       '#title' => t('User Registration form'),
-      '#default_value' => variable_get('honeypot_form_user_register_form', 0),
+      '#default_value' => variable_get('honeypot_form_user_register', 0),
     );
     // User password form.
     $form['enabled_forms']['honeypot_form_user_pass'] = array(
