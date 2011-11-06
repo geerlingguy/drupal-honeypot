@@ -51,7 +51,7 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
   if (variable_get('honeypot_protect_all_forms', 0) && !in_array($form_id, $unprotected_forms)) {
     // Don't protect system forms - only admins should have access, and system
     // forms may be programmatically submitted by drush and other modules.
-    if (strpos($form_id, 'system_') === FALSE) {
+    if (strpos($form_id, 'system_') === FALSE && strpos($form_id, 'search_') == FALSE) {
       honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
     }
   }
