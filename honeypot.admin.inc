@@ -25,6 +25,12 @@ function honeypot_admin_form($form) {
       '#description' => t('This will enable Honeypot protection for ALL forms on this site, regardless of the settings in the Honeypot enabled forms section below.'),
       '#default_value' => variable_get('honeypot_protect_all_forms', 0),
     );
+    $form['configuration']['honeypot_log'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Log blocked form submissions'),
+      '#description' => t('Log submissions that are blocked due to Honeypot protection.'),
+      '#default_value' => variable_get('honeypot_log', 0),
+    );
     $form['configuration']['honeypot_element_name'] = array(
       '#type' => 'textfield',
       '#title' => t('Honeypot element name'),

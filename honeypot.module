@@ -154,6 +154,7 @@ function _honeypot_honeypot_validate($element, &$form_state) {
 
   // Make sure it's empty.
   if (!empty($honeypot_value)) {
+    _honeypot_log($form_state['values']['form_id'], 'honeypot');
     form_set_error('', t('There was a problem with your form submission. Please refresh the page and try again.'));
   }
 }
@@ -171,6 +172,28 @@ function _honeypot_time_restriction_validate($form, &$form_state) {
   // Make sure the current time - (honeypot_time_limit + form time value) is
   // greater than 0. If not, throw an error.
   if (time() < ($honeypot_time + $time_limit)) {
+    _honeypot_log($form_state['values']['form_id'], 'honeypot_time');
     form_set_error('', t('There was a problem with your form submission. Please wait @limit seconds and try again.', array('@limit' => $time_limit)));
   }
+}
+
+/**
+ * Log blocked form submissions.
+ *
+ * @param $form_id
+ *   Form ID for the form on which submission was blocked.
+ * @param $type
+ *   String indicating the reason the submission was blocked. Allowed values:
+ *     - 'honeypot'
+ *     - 'honeypot_time'
+ */
+function _honeypot_log($form_id, $type) {
+  if (variable_get('honeypot_log', 0)) {
+    $variables = array(
+        '%form'  => $form_id,
+        '@cause' => ($type == 'honeypot') ? t('submission of a value in the honeypot field') : t('submission of the form in less than minimum required time'),
+    );
+    watchdog('honeypot', 'Blocked submission of %form due to @cause.', $variables);
+  }
+  return;
 }
