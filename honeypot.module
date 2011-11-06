@@ -197,7 +197,7 @@ function _honeypot_log($form_id, $type) {
   if (variable_get('honeypot_log', 0)) {
     $variables = array(
         '%form'  => $form_id,
-        '%cause' => ($type == 'honeypot') ? t('submission of a value in the honeypot field') : t('submission of the form in less than minimum required time'),
+        '@cause' => ($type == 'honeypot') ? t('submission of a value in the honeypot field') : t('submission of the form in less than minimum required time'),
     );
     watchdog('honeypot', 'Blocked submission of %form due to @cause.', $variables);
   }
