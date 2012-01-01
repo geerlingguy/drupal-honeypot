@@ -76,29 +76,47 @@ function honeypot_admin_form($form, &$form_state) {
       '#default_value' => variable_get('honeypot_form_user_pass', 0),
     );
 
-    // Get node types for node forms and node comment forms.
-    $types = node_type_get_types();
-
-    // Node forms.
-    $form['enabled_forms']['node_forms'] = array('#markup' => '<h5>' . t('Node Forms') . '</h5>');
-    foreach ($types as $type) {
-      $id = 'honeypot_form_' . $type->type . '_node_form';
-      $form['enabled_forms'][$id] = array(
+    // If contact.module enabled, add contact forms.
+    if (module_exists('contact')) {
+      $form['enabled_forms']['contact_forms'] = array('#markup' => '<h5>' . t('Contact Forms') . '</h5>');
+      // Sitewide contact form.
+      $form['enabled_forms']['honeypot_form_contact_site_form'] = array(
         '#type' => 'checkbox',
-        '#title' => t('@name node form', array('@name' => $type->name)),
-        '#default_value' => variable_get($id, 0),
+        '#title' => t('Sitewide Contact form'),
+        '#default_value' => variable_get('honeypot_form_contact_site_form', 0),
+      );
+      // Sitewide personal form.
+      $form['enabled_forms']['honeypot_form_contact_personal_form'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Personal Contact forms'),
+        '#default_value' => variable_get('honeypot_form_contact_personal_form', 0),
       );
     }
 
-    // Comment forms.
-    $form['enabled_forms']['comment_forms'] = array('#markup' => '<h5>' . t('Comment Forms') . '</h5>');
-    foreach ($types as $type) {
-      $id = 'honeypot_form_comment_node_' . $type->type . '_form';
-      $form['enabled_forms'][$id] = array(
-        '#type' => 'checkbox',
-        '#title' => t('@name comment form', array('@name' => $type->name)),
-        '#default_value' => variable_get($id, 0),
-      );
+    // Get node types for node forms and node comment forms.
+    $types = node_type_get_types();
+    if (!empty($types)) {
+      // Node forms.
+      $form['enabled_forms']['node_forms'] = array('#markup' => '<h5>' . t('Node Forms') . '</h5>');
+      foreach ($types as $type) {
+        $id = 'honeypot_form_' . $type->type . '_node_form';
+        $form['enabled_forms'][$id] = array(
+          '#type' => 'checkbox',
+          '#title' => t('@name node form', array('@name' => $type->name)),
+          '#default_value' => variable_get($id, 0),
+        );
+      }
+
+      // Comment forms.
+      $form['enabled_forms']['comment_forms'] = array('#markup' => '<h5>' . t('Comment Forms') . '</h5>');
+      foreach ($types as $type) {
+        $id = 'honeypot_form_comment_node_' . $type->type . '_form';
+        $form['enabled_forms'][$id] = array(
+          '#type' => 'checkbox',
+          '#title' => t('@name comment form', array('@name' => $type->name)),
+          '#default_value' => variable_get($id, 0),
+        );
+      }
     }
 
   // Add our own submit handler to clear honeypot's form cache on save.
