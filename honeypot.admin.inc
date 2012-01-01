@@ -72,6 +72,21 @@ function honeypot_admin_form($form) {
       '#default_value' => variable_get('honeypot_form_user_pass', 0),
     );
 
+    // If contact.module enabled, add contact forms.
+    if (module_exists('contact')) {
+      $form['enabled_forms']['contact_forms'] = array('#value' => '<h5>' . t('Contact Forms') . '</h5>');
+      $form['enabled_forms']['honeypot_form_contact_mail_page'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Sitewide Contact form'),
+        '#default_value' => variable_get('honeypot_form_contact_mail_page', 0),
+      );
+      $form['enabled_forms']['honeypot_form_contact_mail_user'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Personal Contact forms'),
+        '#default_value' => variable_get('honeypot_form_contact_mail_user', 0),
+      );
+    }
+
     // Node forms.
     $types = node_get_types();
     $form['enabled_forms']['node_forms'] = array('#value' => '<h5>' . t('Node Forms') . '</h5>');
