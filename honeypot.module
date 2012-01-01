@@ -62,13 +62,6 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
     }
   }
 
-  // Check for webform protection (special case).
-  elseif (variable_get('honeypot_webforms', 0)) {
-    if (strpos($form_id, 'webform_client_form') !== FALSE) {
-      honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
-    }
-  }
-
   // Otherwise add form protection to admin-configured forms.
   elseif ($forms_to_protect = honeypot_get_protected_forms()) {
     foreach ($forms_to_protect as $protect_form_id) {
