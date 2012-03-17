@@ -34,7 +34,7 @@ function honeypot_admin_form($form) {
     $form['configuration']['honeypot_element_name'] = array(
       '#type' => 'textfield',
       '#title' => t('Honeypot element name'),
-      '#description' => t("The name of the Honeypot form field. It's usually most effective to use a generic name like email, homepage, or name, but this should be changed if it interferes with fields that are already in your forms."),
+      '#description' => t("The name of the Honeypot form field. It's usually most effective to use a generic name like email, homepage, or name, but this should be changed if it interferes with fields that are already in your forms. Must not contain spaces or special characters."),
       '#default_value' => variable_get('honeypot_element_name', 'homepage'),
       '#required' => TRUE,
       '#size' => 30,
@@ -138,6 +138,11 @@ function honeypot_admin_form_validate($form, &$form_state) {
   }
   else {
     form_set_error('honeypot_time_limit', t("The time limit must be a positive integer or 0."));
+  }
+
+  // Make sure Honeypot element name only contains A-Z, 0-9.
+  if (!preg_match("/^[-_a-zA-Z0-9]+$/", $form_state['values']['honeypot_element_name'])) {
+    form_set_error('honeypot_element_name', t("The element name cannot contain spaces or other special characters."));
   }
 }
 
