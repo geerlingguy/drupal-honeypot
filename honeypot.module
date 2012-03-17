@@ -147,6 +147,17 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
       '#default_value' => time(),
       '#element_validate' => array('_honeypot_time_restriction_validate'),
     );
+
+    // Disable page caching to make sure timestamp isn't cached.
+    if (user_is_anonymous()) {
+      $GLOBALS['conf']['cache'] = CACHE_DISABLED;
+
+      // Pressflow in CACHE_EXTERNAL caching mode additionally requires marking
+      // this request as non-cacheable to bypass external caches (e.g., Varnish).
+      if (function_exists('drupal_page_is_cacheable')) {
+        drupal_set_header('Cache-Control', 'no-cache, must-revalidate, post-check=0, pre-check=0', FALSE);
+      }
+    }
   }
 }
 

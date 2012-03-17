@@ -42,7 +42,7 @@ function honeypot_admin_form($form) {
     $form['configuration']['honeypot_time_limit'] = array(
       '#type' => 'textfield',
       '#title' => t('Honeypot time limit'),
-      '#description' => t('Minimum time required before form should be considered entered by a human instead of a bot. Set to 0 to disable.'),
+      '#description' => t('Minimum time required before form should be considered entered by a human instead of a bot. Set to 0 to disable. <strong>Page caching will be disabled if there is a form protected by time limit on the page.</strong>'),
       '#default_value' => variable_get('honeypot_time_limit', 5),
       '#required' => TRUE,
       '#size' => 5,
