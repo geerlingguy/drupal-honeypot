@@ -153,6 +153,11 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
       '#default_value' => time(),
       '#element_validate' => array('_honeypot_time_restriction_validate'),
     );
+
+    // Disable page caching to make sure timestamp isn't cached.
+    if (user_is_anonymous()) {
+      $GLOBALS['conf']['cache'] = CACHE_DISABLED;
+    }
   }
 }
 
