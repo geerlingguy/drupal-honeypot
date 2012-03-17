@@ -1,3 +1,4 @@
 name = Honeypot
 description = "Mitigates spam form submissions using the honeypot method."
 core = 6.x
+package = "Spam control"
