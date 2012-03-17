@@ -92,7 +92,7 @@ function honeypot_get_protected_forms() {
     }
     else {
       // Look up all the honeypot forms in the variables table.
-      $result = db_query("SELECT name FROM {variable} WHERE name LIKE '%honeypot_form_%'")->fetchCol();
+      $result = db_query("SELECT name FROM {variable} WHERE name LIKE 'honeypot_form_%'")->fetchCol();
       // Add each form that's enabled to the $forms array.
       foreach ($result as $variable) {
         if (variable_get($variable, 0)) {
