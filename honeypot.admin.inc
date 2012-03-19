@@ -109,12 +109,14 @@ function honeypot_admin_form($form) {
     }
 
     // Comment forms.
-    $form['enabled_forms']['comment_forms'] = array('#value' => '<h5>' . t('Comment Forms') . '</h5>');
-    $form['enabled_forms']['honeypot_form_comment_form'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Comment forms (all)'),
-      '#default_value' => variable_get('honeypot_form_comment_form', 0),
-    );
+    if (module_exists('comment')) {
+      $form['enabled_forms']['comment_forms'] = array('#value' => '<h5>' . t('Comment Forms') . '</h5>');
+      $form['enabled_forms']['honeypot_form_comment_form'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Comment forms (all)'),
+        '#default_value' => variable_get('honeypot_form_comment_form', 0),
+      );
+    }
 
   // Add our own submit handler to clear honeypot's form cache on save.
   $form['#submit'][] = 'honeypot_admin_form_submit';
