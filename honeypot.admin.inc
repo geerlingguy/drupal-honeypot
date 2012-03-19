@@ -117,14 +117,16 @@ function honeypot_admin_form($form, &$form_state) {
       }
 
       // Comment forms.
-      $form['enabled_forms']['comment_forms'] = array('#markup' => '<h5>' . t('Comment Forms') . '</h5>');
-      foreach ($types as $type) {
-        $id = 'honeypot_form_comment_node_' . $type->type . '_form';
-        $form['enabled_forms'][$id] = array(
-          '#type' => 'checkbox',
-          '#title' => t('@name comment form', array('@name' => $type->name)),
-          '#default_value' => variable_get($id, 0),
-        );
+      if (module_exists('comment')) {
+        $form['enabled_forms']['comment_forms'] = array('#markup' => '<h5>' . t('Comment Forms') . '</h5>');
+        foreach ($types as $type) {
+          $id = 'honeypot_form_comment_node_' . $type->type . '_form';
+          $form['enabled_forms'][$id] = array(
+            '#type' => 'checkbox',
+            '#title' => t('@name comment form', array('@name' => $type->name)),
+            '#default_value' => variable_get($id, 0),
+          );
+        }
       }
     }
 
