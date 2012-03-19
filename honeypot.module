@@ -156,7 +156,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
 
     // Disable page caching to make sure timestamp isn't cached.
     if (user_is_anonymous()) {
-      $GLOBALS['conf']['cache'] = CACHE_DISABLED;
+      $GLOBALS['conf']['cache'] = 0;
     }
   }
 }
