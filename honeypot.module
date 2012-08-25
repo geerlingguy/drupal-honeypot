@@ -140,8 +140,12 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
       '#element_validate' => array('_honeypot_honeypot_validate'),
       '#prefix' => '<div class="honeypot-textfield">',
       '#suffix' => '</div>',
+      '#attached' => array(
+        'css' => array(
+          '.honeypot-textfield { display: none !important; }' => array('type' => 'inline'), // Hide honeypot.
+        ),
+      ),
     );
-    drupal_add_css('.honeypot-textfield { display: none !important; }', 'inline'); // Hide honeypot.
   }
 
   // Build the time restriction element (if it's not disabled).
