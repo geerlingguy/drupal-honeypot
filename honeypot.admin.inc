@@ -96,6 +96,16 @@ function honeypot_admin_form($form) {
       );
     }
 
+    // If profile.module enabled, add profile forms.
+    if (module_exists('profile')) {
+      $form['enabled_forms']['profile_forms'] = array('#value' => '<h5>' . t('Profile Forms') . '</h5>');
+      $form['enabled_forms']['honeypot_form_user_profile_form'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Profile forms (all)'),
+        '#default_value' => variable_get('honeypot_form_user_profile_form', 0),
+      );
+    }
+
     // Node forms.
     $types = node_get_types();
     $form['enabled_forms']['node_forms'] = array('#value' => '<h5>' . t('Node Forms') . '</h5>');

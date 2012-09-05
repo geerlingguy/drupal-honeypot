@@ -10,6 +10,8 @@
  * Implements hook_install().
  */
 function honeypot_install() {
+  // Create tables.
+  drupal_install_schema('honeypot');
   drupal_set_message(t("Honeypot installed successfully. Please !link to protect your forms from spam bots.", array(
     '!link' => l(t('configure Honeypot'), 'admin/settings/honeypot')
   )));
@@ -26,6 +28,36 @@ function honeypot_uninstall() {
       cache_clear_all($table, 'cache');
     }
   }
+  // Remove tables.
+  drupal_uninstall_schema('honeypot');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function honeypot_schema() {
+  $schema['honeypot_user'] = array(
+    'description' => 'Table that stores failed attempts to submit a form.',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'Foreign key to {users}.uid; uniquely identifies a Drupal user to whom this ACL data applies.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+        'description' => 'Date/time when the form submission failed, as Unix timestamp.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'timestamp' => array('timestamp'),
+    ),
+  );
+  return $schema;
 }
 
 /**
@@ -40,4 +72,33 @@ function honeypot_update_6100() {
   variable_set('honeypot_form_user_register', $user_registration_form_value);
   // Must at least return an empty array to prevent errors.
   return array();
+}
+
+function honeypot_update_6200() {
+  $ret = array();
+
+  $table = array(
+    'description' => 'Table that stores failed attempts to submit a form.',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'Foreign key to {users}.uid; uniquely identifies a Drupal user to whom this ACL data applies.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+        'description' => 'Date/time when the form submission failed, as Unix timestamp.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'timestamp' => array('timestamp'),
+    ),
+  );
+
+  db_create_table($ret, 'honeypot_user', $table);
+  return $ret;
 }
