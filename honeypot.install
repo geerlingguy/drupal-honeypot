@@ -7,6 +7,58 @@
  */
 
 /**
+ * Implements of hook_schema().
+ */
+function honeypot_schema() {
+  $schema['honeypot_user'] = array(
+    'description' => 'Table that stores failed attempts to submit a form.',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'Foreign key to {users}.uid; uniquely identifies a Drupal user to whom this ACL data applies.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+        'description' => 'Date/time when the form submission failed, as Unix timestamp.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'timestamp' => array('timestamp'),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function honeypot_install() {
+  drupal_set_message(t("Honeypot installed successfully. Please !link to protect your forms from spam bots.", array(
+    '!link' => l(t('configure Honeypot'), 'admin/config/content/honeypot')
+  )));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function honeypot_uninstall() {
+  db_delete('variable')
+    ->condition('name', db_like('honeypot_') . '%', 'LIKE')
+    ->execute();
+  $cache_tables = array('variables', 'cache_bootstrap');
+  foreach ($cache_tables as $table) {
+    if (db_table_exists($table)) {
+      cache_clear_all($table, 'cache');
+    }
+  }
+}
+
+/**
  * Implements hook_update_N().
  */
 function honeypot_update_7001() {
@@ -48,25 +100,30 @@ function honeypot_update_7002() {
 }
 
 /**
- * Implements hook_install().
+ * Add {honeypot_users} database table.
  */
-function honeypot_install() {
-  drupal_set_message(t("Honeypot installed successfully. Please !link to protect your forms from spam bots.", array(
-    '!link' => l(t('configure Honeypot'), 'admin/config/content/honeypot')
-  )));
-}
+function honeypot_update_7003() {
+  $table = array(
+    'description' => 'Table that stores failed attempts to submit a form.',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'Foreign key to {users}.uid; uniquely identifies a Drupal user to whom this ACL data applies.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+        'description' => 'Date/time when the form submission failed, as Unix timestamp.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'timestamp' => array('timestamp'),
+    ),
+  );
 
-/**
- * Implements hook_uninstall().
- */
-function honeypot_uninstall() {
-  db_delete('variable')
-    ->condition('name', db_like('honeypot_') . '%', 'LIKE')
-    ->execute();
-  $cache_tables = array('variables', 'cache_bootstrap');
-  foreach ($cache_tables as $table) {
-    if (db_table_exists($table)) {
-      cache_clear_all($table, 'cache');
-    }
-  }
+  db_create_table('honeypot_user', $table);
 }
