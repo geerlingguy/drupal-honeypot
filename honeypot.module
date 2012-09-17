@@ -146,7 +146,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
       '#prefix' => '<div class="honeypot-textfield">',
       '#suffix' => '</div>',
     );
-    drupal_add_css(drupal_get_path('module','honeypot') . '/css/honeypot.css', 'module'); // Hide honeypot.
+    $form['#pre_render'][] = '_honeypot_form_add_css';
   }
 
   // Build the time restriction element (if it's not disabled).
@@ -170,6 +170,17 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
       }
     }
   }
+}
+
+/**
+ * Form pre_render callback to add CSS.
+ *
+ * Using this callback rather than adding the CSS inline helps the added CSS
+ * apply even in case of a failed form validation.
+ */
+function _honeypot_form_add_css($form) {
+  drupal_add_css(drupal_get_path('module','honeypot') . '/css/honeypot.css', 'module'); // Hide honeypot.
+  return $form;
 }
 
 /**
