@@ -202,7 +202,7 @@ function _honeypot_time_restriction_validate($form, &$form_state) {
   $honeypot_time = $form_state['values']['honeypot_time'];
 
   // Get the honeypot_time_limit.
-  $time_limit = honeypot_get_time_limit();
+  $time_limit = honeypot_get_time_limit($form_state['values']);
 
   // Make sure current time - (time_limit + form time value) is greater than 0.
   // If not, throw an error.
@@ -238,8 +238,11 @@ function _honeypot_log($form_id, $type) {
 
 /**
  * Look up the time limit for the current user.
+ *
+ * @param $form_values
+ *   Array of form values (optional).
  */
-function honeypot_get_time_limit() {
+function honeypot_get_time_limit($form_values = array()) {
   global $user;
   $honeypot_time_limit = variable_get('honeypot_time_limit', 5);
 
@@ -258,6 +261,10 @@ function honeypot_get_time_limit() {
       ))->fetchField();
     }
     $honeypot_time_limit = $honeypot_time_limit + (int) exp($number);
+    $additions = module_invoke_all('honeypot_time_limit', $honeypot_time_limit, $form_values, $number);
+    if (count($additions)) {
+      $honeypot_time_limit += array_sum($additions);
+    }
   }
   return $honeypot_time_limit;
 }
