@@ -92,7 +92,7 @@ function honeypot_update_7002() {
     if (!empty($types)) {
       foreach ($types as $type) {
         $d7_name = 'honeypot_form_comment_node_' . $type->type . '_form';
-        varaible_set($d7_name, $comment_form_value);
+        variable_set($d7_name, $comment_form_value);
       }
     }
   }
