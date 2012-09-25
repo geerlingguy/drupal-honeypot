@@ -74,6 +74,9 @@ function honeypot_update_6100() {
   return array();
 }
 
+/**
+ * Add {honeypot_users} database table.
+ */
 function honeypot_update_6200() {
   $ret = array();
 
