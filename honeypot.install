@@ -100,30 +100,33 @@ function honeypot_update_7002() {
 }
 
 /**
- * Add {honeypot_users} database table.
+ * Add {honeypot_users} database table if it doesn't exist.
  */
 function honeypot_update_7003() {
-  $table = array(
-    'description' => 'Table that stores failed attempts to submit a form.',
-    'fields' => array(
-      'uid' => array(
-        'description' => 'Foreign key to {users}.uid; uniquely identifies a Drupal user to whom this ACL data applies.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
+  // Make sure the {honeypot_users} table doesn't already exist.
+  if (!db_table_exists('honeypot_user')) {
+    $table = array(
+      'description' => 'Table that stores failed attempts to submit a form.',
+      'fields' => array(
+        'uid' => array(
+          'description' => 'Foreign key to {users}.uid; uniquely identifies a Drupal user to whom this ACL data applies.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'timestamp' => array(
+          'description' => 'Date/time when the form submission failed, as Unix timestamp.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
       ),
-      'timestamp' => array(
-        'description' => 'Date/time when the form submission failed, as Unix timestamp.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
+      'indexes' => array(
+        'uid' => array('uid'),
+        'timestamp' => array('timestamp'),
       ),
-    ),
-    'indexes' => array(
-      'uid' => array('uid'),
-      'timestamp' => array('timestamp'),
-    ),
-  );
+    );
 
-  db_create_table('honeypot_user', $table);
+    db_create_table('honeypot_user', $table);
+  }
 }
