@@ -72,7 +72,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     $this->drupalPost('user/register', $edit, t('Create new account'));
 
     // Form should have been submitted successfully.
-    $this->assertText(t('A welcome message with further instructions has been sent to your e-mail address.'), t('User registered successfully.'));
+    $this->assertText(t('A welcome message with further instructions has been sent to your e-mail address.'), 'User registered successfully.');
   }
 
   public function testProtectUserRegisterHoneypotFilled() {
@@ -83,7 +83,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     $this->drupalPost('user/register', $edit, t('Create new account'));
 
     // Form should have error message.
-    $this->assertText(t('There was a problem with your form submission. Please refresh the page and try again.'), t('Registration form protected by honeypot.'));
+    $this->assertText(t('There was a problem with your form submission. Please refresh the page and try again.'), 'Registration form protected by honeypot.');
   }
 
   public function testProtectRegisterUserTooFast() {
@@ -96,7 +96,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     $this->drupalPost('user/register', $edit, t('Create new account'));
 
     // Form should have error message.
-    $this->assertText(t('There was a problem with your form submission. Please wait'), t('Registration form protected by time limit.'));
+    $this->assertText(t('There was a problem with your form submission. Please wait'), 'Registration form protected by time limit.');
   }
 
   public function testProtectCommentFormNormal() {
@@ -133,6 +133,6 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
 
     // Get the comment reply form and ensure there's no 'homepage' field.
     $this->drupalGet('comment/reply/' . $this->node->nid);
-    $this->assertNoText('id="edit-homepage" name="homepage"', t('Honeypot home page field not shown.'));
+    $this->assertNoText('id="edit-homepage" name="homepage"', 'Honeypot home page field not shown.');
   }
 }
