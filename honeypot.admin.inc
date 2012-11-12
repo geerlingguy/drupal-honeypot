@@ -46,6 +46,7 @@ function honeypot_admin_form($form) {
       '#default_value' => variable_get('honeypot_time_limit', 5),
       '#required' => TRUE,
       '#size' => 5,
+      '#field_suffix' => t('seconds'),
     );
 
   // Honeypot Enabled forms.
