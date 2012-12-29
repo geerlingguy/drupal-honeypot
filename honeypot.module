@@ -141,8 +141,8 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
 
   // Build the honeypot element.
   if (in_array('honeypot', $options)) {
-    // Get the element name (default is generic 'homepage').
-    $honeypot_element = variable_get('honeypot_element_name', 'homepage');
+    // Get the element name (default is generic 'url').
+    $honeypot_element = variable_get('honeypot_element_name', 'url');
 
     // Build the honeypot element.
     $honeypot_class = $honeypot_element . '-textfield';
