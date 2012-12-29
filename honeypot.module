@@ -134,6 +134,9 @@ function honeypot_get_protected_forms() {
 function honeypot_add_form_protection(&$form, &$form_state, $options = array()) {
   global $user;
 
+  // Allow other modules to alter the protections applied to this form.
+  drupal_alter('honeypot_form_protections', $options, $form);
+
   // Don't add any protections if the user can bypass the Honeypot.
   if (user_access('bypass honeypot protection')) {
     return;
@@ -177,6 +180,11 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
     if (user_is_anonymous()) {
       $GLOBALS['conf']['cache'] = 0;
     }
+  }
+
+  // Allow other modules to react to addition of form protection.
+  if (!empty($options)) {
+    module_invoke_all('honeypot_add_form_protection', $options, $form['form_id']['#value']);
   }
 }
 
