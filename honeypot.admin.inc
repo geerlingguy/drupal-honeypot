@@ -34,8 +34,8 @@ function honeypot_admin_form($form) {
     $form['configuration']['honeypot_element_name'] = array(
       '#type' => 'textfield',
       '#title' => t('Honeypot element name'),
-      '#description' => t("The name of the Honeypot form field. It's usually most effective to use a generic name like email, homepage, or name, but this should be changed if it interferes with fields that are already in your forms. Must not contain spaces or special characters."),
-      '#default_value' => variable_get('honeypot_element_name', 'homepage'),
+      '#description' => t("The name of the Honeypot form field. It's usually most effective to use a generic name like email, url, or name, but this should be changed if it interferes with fields that are already in your forms. Must not contain spaces or special characters."),
+      '#default_value' => variable_get('honeypot_element_name', 'url'),
       '#required' => TRUE,
       '#size' => 30,
     );
