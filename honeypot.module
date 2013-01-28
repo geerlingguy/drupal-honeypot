@@ -126,6 +126,9 @@ function honeypot_get_protected_forms() {
 function honeypot_add_form_protection(&$form, &$form_state, $options = array()) {
   global $user;
 
+  // Allow other modules to alter the protections applied to this form.
+  drupal_alter('honeypot_form_protections', $options, $form);
+
   // Don't add any protections if the user can bypass the Honeypot.
   if (user_access('bypass honeypot protection')) {
     return;
@@ -169,6 +172,11 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
         drupal_set_header('Cache-Control', 'no-cache, must-revalidate, post-check=0, pre-check=0', FALSE);
       }
     }
+  }
+
+  // Allow other modules to react to addition of form protection.
+  if (!empty($options)) {
+    module_invoke_all('honeypot_add_form_protection', $options, $form['form_id']['#value']);
   }
 }
 
