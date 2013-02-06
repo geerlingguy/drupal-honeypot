@@ -66,6 +66,7 @@ function hook_honeypot_add_form_protection($options, $form) {
  *   Additional time to add to the honeypot_time_limit, in seconds (integer).
  */
 function hook_honeypot_time_limit($honeypot_time_limit, $form_values, $number) {
+  $additions = 0;
   // If 'some_interesting_value' is set in a form, add 10 seconds to limit.
   if (!empty($form_values['some_interesting_value']) && $form_values['some_interesting_value']) {
     $additions = 10;
