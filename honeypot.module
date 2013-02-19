@@ -2,7 +2,6 @@
 
 /**
  * @file
- *
  * Honeypot module, for deterring spam bots from completing Drupal forms.
  */
 
@@ -13,10 +12,10 @@ function honeypot_menu() {
   $items['admin/config/content/honeypot'] = array(
     'title' => 'Honeypot configuration',
     'description' => 'Configure Honeypot spam prevention and the forms on which Honeypot will be used.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('honeypot_admin_form'),
+    // TODO - Remove once http://drupal.org/node/1845402 is resolved?
+    'page callback' => 'NOT_USED',
+    'access callback' => 'user_access',
     'access arguments' => array('administer honeypot'),
-    'file' => 'honeypot.admin.inc',
   );
 
   return $items;
@@ -43,8 +42,9 @@ function honeypot_permission() {
  */
 function honeypot_cron() {
   // Delete {honeypot_user} entries older than the value of honeypot_expire.
+  $expire_limit = config('honeypot.settings')->get('expire');
   db_delete('honeypot_user')
-    ->condition('timestamp', time() - variable_get('honeypot_expire', 300), '<')
+    ->condition('timestamp', time() - $expire_limit, '<')
     ->execute();
 }
 
@@ -52,6 +52,9 @@ function honeypot_cron() {
  * Implements hook_form_alter().
  *
  * Add Honeypot features to forms enabled in the Honeypot admin interface.
+ *
+ * @todo - Check all forms and definitions to make sure nothing's changed in the
+ *   D7 to D8 upgrade cycle.
  */
 function honeypot_form_alter(&$form, &$form_state, $form_id) {
   // Don't use for maintenance mode forms (install, update, etc.).
@@ -67,7 +70,8 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
   );
 
   // If configured to protect all forms, add protection to every form.
-  if (variable_get('honeypot_protect_all_forms', 0) && !in_array($form_id, $unprotected_forms)) {
+  $protect_all_forms = config('honeypot.settings')->get('protect_all_forms');
+  if ($protect_all_forms && !in_array($form_id, $unprotected_forms)) {
     // Don't protect system forms - only admins should have access, and system
     // forms may be programmatically submitted by drush and other modules.
     if (strpos($form_id, 'system_') === FALSE && strpos($form_id, 'search_') === FALSE && strpos($form_id, 'views_exposed_form_') === FALSE) {
@@ -92,29 +96,31 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
 
 /**
  * Build an array of all the protected forms on the site, by form_id.
- *
- * @todo - Add in API call/hook to allow modules to add to this array.
  */
 function honeypot_get_protected_forms() {
   $forms = &drupal_static(__FUNCTION__);
 
   // If the data isn't already in memory, get from cache or look it up fresh.
   if (!isset($forms)) {
-    if ($cache = cache_get('honeypot_protected_forms')) {
+    if ($cache = cache()->get('honeypot_protected_forms')) {
       $forms = $cache->data;
     }
     else {
-      // Look up all the honeypot forms in the variables table.
-      $result = db_query("SELECT name FROM {variable} WHERE name LIKE 'honeypot_form_%'")->fetchCol();
-      // Add each form that's enabled to the $forms array.
-      foreach ($result as $variable) {
-        if (variable_get($variable, 0)) {
-          $forms[] = substr($variable, 14);
+      $form_settings = config('honeypot.settings')->get('form_settings');
+      if (!empty($form_settings)) {
+        // Add each form that's enabled to the $forms array.
+        foreach ($form_settings as $form_id => $enabled) {
+          if ($enabled) {
+            $forms[] = $form_id;
+          }
         }
+      }
+      else {
+        $forms = array();
       }
 
       // Save the cached data.
-      cache_set('honeypot_protected_forms', $forms, 'cache');
+      cache()->set('honeypot_protected_forms', $forms);
     }
   }
 
@@ -178,6 +184,8 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
 
     // Disable page caching to make sure timestamp isn't cached.
     if (user_is_anonymous()) {
+      // TODO D8 - Use DIC? See: http://drupal.org/node/1539454
+      // Should this now set 'omit_vary_cookie' instead?
       $GLOBALS['conf']['cache'] = 0;
     }
   }
@@ -294,6 +302,6 @@ function honeypot_log_failure() {
   }
   // Register flood event for anonymous users.
   else {
-    flood_register_event('honeypot');
+    drupal_container()->get('flood')->register('honeypot.event');
   }
 }

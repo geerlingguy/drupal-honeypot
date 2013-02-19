@@ -1,0 +1,6 @@
+honeypot__config:
+  pattern: '/admin/config/content/honeypot'
+  defaults:
+    _controller: 'honeypot.settings.form:getForm'
+  requirements:
+    _permission: 'administer honeypot'

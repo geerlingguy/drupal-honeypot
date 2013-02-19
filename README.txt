@@ -6,8 +6,8 @@ Honeypot Module Readme
 Installation
 ------------
 
-To install this module, place it in your sites/all/modules folder and enable it
-on the modules page.
+To install this module, place it in your modules folder and enable it on the
+modules page.
 
 
 Configuration
@@ -35,4 +35,4 @@ Credit
 ------
 
 The Honeypot module was originally developed by Jeff Geerling of Midwestern Mac,
-LLC (midwesternmac.com), and sponsored by flockNote (flocknote.com).
+LLC (midwesternmac.com), and sponsored by Flocknote (flocknote.com).

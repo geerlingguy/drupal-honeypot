@@ -1,0 +1,10 @@
+protect_all_forms: 0
+log: 0
+element_name: 'url'
+time_limit: 5
+form_settings:
+  user_register_form: 0
+  user_pass: 0
+  webforms: 0
+  feedback_contact_message_form: 0
+  _contact_message_form: 0
