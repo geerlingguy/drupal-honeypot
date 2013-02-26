@@ -5,17 +5,25 @@
  * Definition of Drupal\honeypot\Tests\HoneypotFormTestCase.
  */
 
-namespace Drupal\example\Tests;
+namespace Drupal\honeypot\Tests;
 
+use Drupal\simpletest\WebTestBase;
 use Drupal\Core\Database\Database;
 
 /**
  * Test the functionality of the Honeypot module for an admin user.
  */
-class HoneypotFormTestCase extends DrupalWebTestCase {
+class HoneypotFormTestCase extends WebTestBase {
   protected $admin_user;
   protected $web_user;
   protected $node;
+
+  /**
+   * Modules to enable.
+   *
+   * @var array
+   */
+  public static $modules = array('honeypot', 'node', 'comment');
 
   public static function getInfo() {
     return array(
@@ -27,7 +35,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
 
   public function setUp() {
     // Enable modules required for this test.
-    parent::setUp(array('honeypot', 'comment'));
+    parent::setUp();
 
     // Set up required Honeypot variables.
     variable_set('honeypot_element_name', 'url');
@@ -38,6 +46,11 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     // Set up other required variables.
     variable_set('user_email_verification', TRUE);
     variable_set('user_register', USER_REGISTER_VISITORS);
+
+    // Create an Article node type.
+    if ($this->profile != 'standard') {
+      $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
+    }
 
     // Set up admin user.
     $this->admin_user = $this->drupalCreateUser(array(
@@ -113,7 +126,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->web_user);
 
     // Set up form and submit it.
-    $edit['comment_body[' . LANGUAGE_NONE . '][0][value]'] = $comment;
+    $edit['comment_body[' . LANGUAGE_NOT_SPECIFIED . '][0][value]'] = $comment;
     $this->drupalPost('comment/reply/' . $this->node->nid, $edit, t('Save'));
     $this->assertText(t('Your comment has been posted.'), 'Comment posted successfully.');
   }
@@ -125,7 +138,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->web_user);
 
     // Set up form and submit it.
-    $edit['comment_body[' . LANGUAGE_NONE . '][0][value]'] = $comment;
+    $edit['comment_body[' . LANGUAGE_NOT_SPECIFIED . '][0][value]'] = $comment;
     $edit['url'] = 'http://www.example.com/';
     $this->drupalPost('comment/reply/' . $this->node->nid, $edit, t('Save'));
     $this->assertText(t('There was a problem with your form submission. Please refresh the page and try again.'), 'Comment posted successfully.');
