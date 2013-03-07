@@ -151,7 +151,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
   // Build the honeypot element.
   if (in_array('honeypot', $options)) {
     // Get the element name (default is generic 'url').
-    $honeypot_element = variable_get('honeypot_element_name', 'url');
+    $honeypot_element = config('honeypot.settings')->get('element_name');
 
     // Build the honeypot element.
     $honeypot_class = $honeypot_element . '-textfield';
@@ -173,7 +173,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
   }
 
   // Build the time restriction element (if it's not disabled).
-  if (in_array('time_restriction', $options) && variable_get('honeypot_time_limit', 5) != 0) {
+  if (in_array('time_restriction', $options) && config('honeypot.settings')->get('time_limit') != 0) {
     // Set the current time in a hidden value to be checked later.
     $form['honeypot_time'] = array(
       '#type' => 'hidden',

@@ -37,15 +37,19 @@ class HoneypotFormTestCase extends WebTestBase {
     // Enable modules required for this test.
     parent::setUp();
 
-    // Set up required Honeypot variables.
-    variable_set('honeypot_element_name', 'url');
-    variable_set('honeypot_time_limit', 0); // Disable time_limit protection.
-    variable_set('honeypot_protect_all_forms', TRUE); // Test protecting all forms.
-    variable_set('honeypot_log', FALSE);
+    // Set up required Honeypot configuration.
+    $honeypot_config = config('honeypot.settings');
+    $honeypot_config->set('element_name', 'url');
+    $honeypot_config->set('time_limit', 0); // Disable time_limit protection.
+    $honeypot_config->set('protect_all_forms', TRUE); // Test protecting all forms.
+    $honeypot_config->set('log', FALSE);
+    $honeypot_config->save();
 
-    // Set up other required variables.
-    variable_set('user_email_verification', TRUE);
-    variable_set('user_register', USER_REGISTER_VISITORS);
+    // Set up other required configuration.
+    $user_config = config('user.settings');
+    $user_config->set('verify_mail', TRUE);
+    $user_config->set('register', USER_REGISTER_VISITORS);
+    $user_config->save();
 
     // Create an Article node type.
     if ($this->profile != 'standard') {
@@ -105,7 +109,7 @@ class HoneypotFormTestCase extends WebTestBase {
 
   public function testProtectRegisterUserTooFast() {
     // Enable time limit for honeypot.
-    variable_set('honeypot_time_limit', 5);
+    $honeypot_config = config('honeypot.settings')->set('time_limit', 5)->save();
 
     // Set up form and submit it.
     $edit['name'] = $this->randomName();
@@ -120,7 +124,7 @@ class HoneypotFormTestCase extends WebTestBase {
     $comment = 'Test comment.';
 
     // Disable time limit for honeypot.
-    variable_set('honeypot_time_limit', 0);
+    $honeypot_config = config('honeypot.settings')->set('time_limit', 0)->save();
 
     // Log in the web user.
     $this->drupalLogin($this->web_user);
@@ -128,7 +132,7 @@ class HoneypotFormTestCase extends WebTestBase {
     // Set up form and submit it.
     $edit['comment_body[' . LANGUAGE_NOT_SPECIFIED . '][0][value]'] = $comment;
     $this->drupalPost('comment/reply/' . $this->node->nid, $edit, t('Save'));
-    $this->assertText(t('Your comment has been posted.'), 'Comment posted successfully.');
+    $this->assertText(t('Your comment has been queued for review'), 'Comment posted successfully.');
   }
 
   public function testProtectCommentFormHoneypotFilled() {
