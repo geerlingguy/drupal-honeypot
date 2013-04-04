@@ -52,9 +52,6 @@ function honeypot_cron() {
  * Implements hook_form_alter().
  *
  * Add Honeypot features to forms enabled in the Honeypot admin interface.
- *
- * @todo - Check all forms and definitions to make sure nothing's changed in the
- *   D7 to D8 upgrade cycle.
  */
 function honeypot_form_alter(&$form, &$form_state, $form_id) {
   // Don't use for maintenance mode forms (install, update, etc.).
