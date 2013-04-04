@@ -184,7 +184,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
 
   // Allow other modules to react to addition of form protection.
   if (!empty($options)) {
-    module_invoke_all('honeypot_add_form_protection', $options, $form['form_id']['#value']);
+    module_invoke_all('honeypot_add_form_protection', $options, $form);
   }
 }
 
