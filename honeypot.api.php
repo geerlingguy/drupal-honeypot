@@ -47,6 +47,24 @@ function hook_honeypot_add_form_protection($options, $form) {
 }
 
 /**
+ * React to the rejection of a form submission.
+ *
+ * When honeypot rejects a form submission, it calls this hook with the form ID
+ * and the user ID (0 if anonymous) of the user that was disallowed from
+ * submitting the form.
+ *
+ * @param (string) $form_id
+ *   Form ID of the form the user was disallowed from submitting.
+ * @param (int) $uid
+ *   0 for anonymous users, otherwise the user ID of the user.
+ */
+function hook_honeypot_reject($form_id, $uid) {
+  if ($form_id == 'mymodule_form') {
+    // Do something...
+  }
+}
+
+/**
  * Add time to the Honeypot time limit.
  *
  * In certain circumstances (for example, on forms routinely targeted by

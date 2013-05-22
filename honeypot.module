@@ -238,7 +238,7 @@ function _honeypot_time_restriction_validate($form, &$form_state) {
  *     - 'honeypot_time'
  */
 function _honeypot_log($form_id, $type) {
-  honeypot_log_failure();
+  honeypot_log_failure($form_id);
   if (variable_get('honeypot_log', 0)) {
     $variables = array(
         '%form'  => $form_id,
@@ -285,9 +285,13 @@ function honeypot_get_time_limit($form_values = array()) {
 
 /**
  * Log the failed submision with timestamp.
+ *
+ * @param $form_id
+ *   Form ID for the rejected form submission.
  */
-function honeypot_log_failure() {
+function honeypot_log_failure($form_id) {
   global $user;
+
   // Log failed submissions for authenticated users.
   if ($user->uid) {
     db_insert('honeypot_user')
@@ -301,4 +305,7 @@ function honeypot_log_failure() {
   else {
     drupal_container()->get('flood')->register('honeypot.event');
   }
+
+  // Allow other modules to react to honeypot rejections.
+  module_invoke_all('honeypot_reject', $form_id, $user->uid);
 }
