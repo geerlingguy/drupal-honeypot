@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\honeypot\Tests\HoneypotFormTestCase.
+ * Definition of Drupal\honeypot\Tests\HoneypotFormTest.
  */
 
 namespace Drupal\honeypot\Tests;
@@ -13,7 +13,7 @@ use Drupal\Core\Database\Database;
 /**
  * Test the functionality of the Honeypot module for an admin user.
  */
-class HoneypotFormTestCase extends WebTestBase {
+class HoneypotFormTest extends WebTestBase {
   protected $admin_user;
   protected $web_user;
   protected $node;
@@ -29,7 +29,7 @@ class HoneypotFormTestCase extends WebTestBase {
     return array(
       'name' => 'Honeypot form protections',
       'description' => 'Ensure that Honeypot protects site forms properly.',
-      'group' => 'Form API',
+      'group' => 'Honeypot',
     );
   }
 

@@ -269,7 +269,7 @@ function honeypot_get_time_limit($form_values = array()) {
     else {
       $number = db_query("SELECT COUNT(*) FROM {flood} WHERE event = :event AND identifier = :hostname AND timestamp > :time", array(
         ':event' => 'honeypot',
-        ':hostname' => ip_address(),
+        ':hostname' => Drupal::request()->getClientIp(),
         ':time' => time() - variable_get('honeypot_expire', 300),
       ))->fetchField();
     }

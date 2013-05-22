@@ -227,6 +227,9 @@ class HoneypotSettingsController implements FormInterface {
 
     // Clear the honeypot protected forms cache.
     cache_invalidate_tags(array('honeypot_protected_forms' => TRUE));
+
+    // Tell the user the settings have been saved.
+    drupal_set_message(t('The configuration options have been saved.'));
   }
 
 }
