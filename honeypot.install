@@ -2,8 +2,7 @@
 
 /**
  * @file
- *
- * Install, update and uninstall functions for the Honeypot module.
+ * Contains install and update functions for Honeypot.
  */
 
 /**
@@ -38,8 +37,8 @@ function honeypot_schema() {
  * Implements hook_install().
  */
 function honeypot_install() {
-  drupal_set_message(st("Honeypot installed successfully. Please !link to protect your forms from spam bots.", array(
-    '!link' => l(st('configure Honeypot'), 'admin/config/content/honeypot')
+  drupal_set_message(t("Honeypot installed successfully. Please !link to protect your forms from spam bots.", array(
+    '!link' => l(t('configure Honeypot'), 'admin/config/content/honeypot')
   )));
 }
 
@@ -47,10 +46,8 @@ function honeypot_install() {
  * Implements hook_uninstall().
  */
 function honeypot_uninstall() {
-  $caches = array('cache_bootstrap');
-  foreach ($caches as $cache) {
-    cache($cache)->deleteAll();
-  }
+  // Clear the bootstrap cache.
+  cache('bootstrap')->deleteAll();
 }
 
 /**

@@ -9,6 +9,7 @@ namespace Drupal\honeypot\Tests;
 
 use Drupal\simpletest\WebTestBase;
 use Drupal\Core\Database\Database;
+use Drupal\Core\Language\Language;
 
 /**
  * Test the functionality of the Honeypot module for an admin user.
@@ -130,7 +131,8 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->web_user);
 
     // Set up form and submit it.
-    $edit['comment_body[' . LANGUAGE_NOT_SPECIFIED . '][0][value]'] = $comment;
+    $langcode = Language::LANGCODE_NOT_SPECIFIED;
+    $edit["comment_body[$langcode][0][value]"] = $comment;
     $this->drupalPost('comment/reply/' . $this->node->nid, $edit, t('Save'));
     $this->assertText(t('Your comment has been queued for review'), 'Comment posted successfully.');
   }
@@ -142,7 +144,8 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->web_user);
 
     // Set up form and submit it.
-    $edit['comment_body[' . LANGUAGE_NOT_SPECIFIED . '][0][value]'] = $comment;
+    $langcode = Language::LANGCODE_NOT_SPECIFIED;
+    $edit["comment_body[$langcode][0][value]"] = $comment;
     $edit['url'] = 'http://www.example.com/';
     $this->drupalPost('comment/reply/' . $this->node->nid, $edit, t('Save'));
     $this->assertText(t('There was a problem with your form submission. Please refresh the page and try again.'), 'Comment posted successfully.');

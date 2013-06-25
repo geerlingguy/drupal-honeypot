@@ -1,6 +1,7 @@
 name: Honeypot
 type: module
-description: Mitigates spam form submissions using the honeypot method.
+description: 'Mitigates spam form submissions using the honeypot method.'
 package: "Spam control"
 core: 8.x
 configure: admin/config/content/honeypot
+hidden: false
