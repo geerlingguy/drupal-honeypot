@@ -48,6 +48,7 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
     'search_form',
     'search_theme_form',
     'views_exposed_form',
+    'honeypot_admin_form',
   );
 
   // If configured to protect all forms, add protection to every form.
