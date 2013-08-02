@@ -136,13 +136,13 @@ function honeypot_get_protected_forms() {
  *   Returns elements to be placed in a form's elements array to prevent spam.
  */
 function honeypot_add_form_protection(&$form, &$form_state, $options = array()) {
-  global $user;
+  $account = \Drupal::request()->attributes->get('_account');
 
   // Allow other modules to alter the protections applied to this form.
   drupal_alter('honeypot_form_protections', $options, $form);
 
   // Don't add any protections if the user can bypass the Honeypot.
-  if (user_access('bypass honeypot protection')) {
+  if ($account->hasPermission('bypass honeypot protection')) {
     return;
   }
 
@@ -257,14 +257,15 @@ function _honeypot_log($form_id, $type) {
  *   Array of form values (optional).
  */
 function honeypot_get_time_limit($form_values = array()) {
-  global $user;
+  $account = \Drupal::request()->attributes->get('_account');
   $honeypot_time_limit = variable_get('honeypot_time_limit', 5);
 
   // Only calculate time limit if honeypot_time_limit has a value > 0.
   if ($honeypot_time_limit) {
     // Get value from {honeypot_user} table for authenticated users.
-    if ($user->uid) {
-      $number = db_query("SELECT COUNT(*) FROM {honeypot_user} WHERE uid = :uid", array(':uid' => $user->uid))->fetchField();
+    $uid = $account->id();
+    if ($uid) {
+      $number = db_query("SELECT COUNT(*) FROM {honeypot_user} WHERE uid = :uid", array(':uid' => $uid))->fetchField();
     }
     // Get value from {flood} table for anonymous users.
     else {
@@ -291,13 +292,14 @@ function honeypot_get_time_limit($form_values = array()) {
  *   Form ID for the rejected form submission.
  */
 function honeypot_log_failure($form_id) {
-  global $user;
+  $account = \Drupal::request()->attributes->get('_account');
+  $uid = $account->id();
 
   // Log failed submissions for authenticated users.
-  if ($user->uid) {
+  if ($uid) {
     db_insert('honeypot_user')
       ->fields(array(
-        'uid' => $user->uid,
+        'uid' => $uid,
         'timestamp' => time(),
       ))
       ->execute();
@@ -308,5 +310,5 @@ function honeypot_log_failure($form_id) {
   }
 
   // Allow other modules to react to honeypot rejections.
-  module_invoke_all('honeypot_reject', $form_id, $user->uid);
+  module_invoke_all('honeypot_reject', $form_id, $uid);
 }
