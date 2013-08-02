@@ -15,13 +15,6 @@ use Drupal\Core\Form\FormInterface;
 class HoneypotSettingsController implements FormInterface {
 
   /**
-   * Creates a new instance of this form.
-   */
-  public function getForm() {
-    return drupal_get_form($this);
-  }
-
-  /**
    * Get a value from the retrieved form settings array.
    */
   public function getFormSettingsValue($form_settings, $form_id) {

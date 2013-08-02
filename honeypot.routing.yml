@@ -1,6 +1,6 @@
 honeypot__config:
   pattern: '/admin/config/content/honeypot'
   defaults:
-    _controller: 'honeypot.settings.form:getForm'
+    _form: '\Drupal\honeypot\HoneypotSettingsController'
   requirements:
     _permission: 'administer honeypot'
