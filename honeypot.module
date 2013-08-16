@@ -235,11 +235,11 @@ function _honeypot_time_restriction_validate($form, &$form_state) {
  *   Form ID for the form on which submission was blocked.
  * @param $type
  *   String indicating the reason the submission was blocked. Allowed values:
- *     - 'honeypot'
- *     - 'honeypot_time'
+ *     - honeypot: If honeypot field was filled in.
+ *     - honeypot_time: If form was completed before the configured time limit.
  */
 function _honeypot_log($form_id, $type) {
-  honeypot_log_failure($form_id);
+  honeypot_log_failure($form_id, $type);
   if (variable_get('honeypot_log', 0)) {
     $variables = array(
         '%form'  => $form_id,
@@ -291,7 +291,7 @@ function honeypot_get_time_limit($form_values = array()) {
  * @param $form_id
  *   Form ID for the rejected form submission.
  */
-function honeypot_log_failure($form_id) {
+function honeypot_log_failure($form_id, $type) {
   $account = \Drupal::request()->attributes->get('_account');
   $uid = $account->id();
 
@@ -310,5 +310,5 @@ function honeypot_log_failure($form_id) {
   }
 
   // Allow other modules to react to honeypot rejections.
-  module_invoke_all('honeypot_reject', $form_id, $uid);
+  module_invoke_all('honeypot_reject', $form_id, $uid, $type);
 }
