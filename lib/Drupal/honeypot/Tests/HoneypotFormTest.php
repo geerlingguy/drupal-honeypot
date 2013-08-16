@@ -79,8 +79,6 @@ class HoneypotFormTest extends WebTestBase {
     // Set up example node.
     $this->node = $this->drupalCreateNode(array(
       'type' => 'article',
-      'promote' => 1,
-      'uid' => $this->web_user->uid,
     ));
   }
 
