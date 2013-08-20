@@ -45,6 +45,7 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
 
   $unprotected_forms = array(
     'user_login',
+    'user_login_block',
     'search_form',
     'search_theme_form',
     'views_exposed_form',
