@@ -131,7 +131,7 @@ class HoneypotFormTest extends WebTestBase {
     // Set up form and submit it.
     $langcode = Language::LANGCODE_NOT_SPECIFIED;
     $edit["comment_body[$langcode][0][value]"] = $comment;
-    $this->drupalPost('comment/reply/' . $this->node->nid, $edit, t('Save'));
+    $this->drupalPost('comment/reply/' . $this->node->id(), $edit, t('Save'));
     $this->assertText(t('Your comment has been queued for review'), 'Comment posted successfully.');
   }
 
@@ -145,7 +145,7 @@ class HoneypotFormTest extends WebTestBase {
     $langcode = Language::LANGCODE_NOT_SPECIFIED;
     $edit["comment_body[$langcode][0][value]"] = $comment;
     $edit['url'] = 'http://www.example.com/';
-    $this->drupalPost('comment/reply/' . $this->node->nid, $edit, t('Save'));
+    $this->drupalPost('comment/reply/' . $this->node->id(), $edit, t('Save'));
     $this->assertText(t('There was a problem with your form submission. Please refresh the page and try again.'), 'Comment posted successfully.');
   }
 
@@ -154,7 +154,7 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->admin_user);
 
     // Get the comment reply form and ensure there's no 'url' field.
-    $this->drupalGet('comment/reply/' . $this->node->nid);
+    $this->drupalGet('comment/reply/' . $this->node->id());
     $this->assertNoText('id="edit-url" name="url"', 'Honeypot home page field not shown.');
   }
 }
