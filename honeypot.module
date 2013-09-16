@@ -238,7 +238,7 @@ function _honeypot_time_restriction_validate($form, &$form_state) {
  *     - 'honeypot_time'
  */
 function _honeypot_log($form_id, $type) {
-  honeypot_log_failure($form_id);
+  honeypot_log_failure($form_id, $type);
   if (variable_get('honeypot_log', 0)) {
     $variables = array(
         '%form'  => $form_id,
