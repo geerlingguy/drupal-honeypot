@@ -9,7 +9,6 @@ namespace Drupal\honeypot\Tests;
 
 use Drupal\simpletest\WebTestBase;
 use Drupal\Core\Database\Database;
-use Drupal\Core\Language\Language;
 
 /**
  * Test the functionality of the Honeypot module for an admin user.
@@ -55,6 +54,8 @@ class HoneypotFormTest extends WebTestBase {
     // Create an Article node type.
     if ($this->profile != 'standard') {
       $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
+      // Create comment field on article.
+      $this->container->get('comment.manager')->addDefaultField('node', 'article');
     }
 
     // Set up admin user.
@@ -79,6 +80,7 @@ class HoneypotFormTest extends WebTestBase {
     // Set up example node.
     $this->node = $this->drupalCreateNode(array(
       'type' => 'article',
+      'comment' => COMMENT_OPEN,
     ));
   }
 
@@ -89,7 +91,7 @@ class HoneypotFormTest extends WebTestBase {
     // Set up form and submit it.
     $edit['name'] = $this->randomName();
     $edit['mail'] = $edit['name'] . '@example.com';
-    $this->drupalPost('user/register', $edit, t('Create new account'));
+    $this->drupalPostForm('user/register', $edit, t('Create new account'));
 
     // Form should have been submitted successfully.
     $this->assertText(t('A welcome message with further instructions has been sent to your e-mail address.'), 'User registered successfully.');
@@ -100,7 +102,7 @@ class HoneypotFormTest extends WebTestBase {
     $edit['name'] = $this->randomName();
     $edit['mail'] = $edit['name'] . '@example.com';
     $edit['url'] = 'http://www.example.com/';
-    $this->drupalPost('user/register', $edit, t('Create new account'));
+    $this->drupalPostForm('user/register', $edit, t('Create new account'));
 
     // Form should have error message.
     $this->assertText(t('There was a problem with your form submission. Please refresh the page and try again.'), 'Registration form protected by honeypot.');
@@ -113,7 +115,7 @@ class HoneypotFormTest extends WebTestBase {
     // Set up form and submit it.
     $edit['name'] = $this->randomName();
     $edit['mail'] = $edit['name'] . '@example.com';
-    $this->drupalPost('user/register', $edit, t('Create new account'));
+    $this->drupalPostForm('user/register', $edit, t('Create new account'));
 
     // Form should have error message.
     $this->assertText(t('There was a problem with your form submission. Please wait'), 'Registration form protected by time limit.');
@@ -129,9 +131,8 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->web_user);
 
     // Set up form and submit it.
-    $langcode = Language::LANGCODE_NOT_SPECIFIED;
-    $edit["comment_body[$langcode][0][value]"] = $comment;
-    $this->drupalPost('comment/reply/' . $this->node->id(), $edit, t('Save'));
+    $edit["comment_body[0][value]"] = $comment;
+    $this->drupalPostForm('comment/reply/node/' . $this->node->id() . '/comment', $edit, t('Save'));
     $this->assertText(t('Your comment has been queued for review'), 'Comment posted successfully.');
   }
 
@@ -142,10 +143,9 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->web_user);
 
     // Set up form and submit it.
-    $langcode = Language::LANGCODE_NOT_SPECIFIED;
-    $edit["comment_body[$langcode][0][value]"] = $comment;
+    $edit["comment_body[0][value]"] = $comment;
     $edit['url'] = 'http://www.example.com/';
-    $this->drupalPost('comment/reply/' . $this->node->id(), $edit, t('Save'));
+    $this->drupalPostForm('comment/reply/node/' . $this->node->id() . '/comment', $edit, t('Save'));
     $this->assertText(t('There was a problem with your form submission. Please refresh the page and try again.'), 'Comment posted successfully.');
   }
 
@@ -154,7 +154,7 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->admin_user);
 
     // Get the comment reply form and ensure there's no 'url' field.
-    $this->drupalGet('comment/reply/' . $this->node->id());
+    $this->drupalGet('comment/reply/node/' . $this->node->id() . '/comment');
     $this->assertNoText('id="edit-url" name="url"', 'Honeypot home page field not shown.');
   }
 }
