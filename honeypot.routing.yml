@@ -1,5 +1,5 @@
 honeypot__config:
-  pattern: '/admin/config/content/honeypot'
+  path: '/admin/config/content/honeypot'
   defaults:
     _form: '\Drupal\honeypot\HoneypotSettingsController'
   requirements:
