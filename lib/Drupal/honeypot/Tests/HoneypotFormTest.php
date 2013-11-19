@@ -14,8 +14,8 @@ use Drupal\Core\Database\Database;
  * Test the functionality of the Honeypot module for an admin user.
  */
 class HoneypotFormTest extends WebTestBase {
-  protected $admin_user;
-  protected $web_user;
+  protected $adminUser;
+  protected $webUser;
   protected $node;
 
   /**
@@ -40,8 +40,10 @@ class HoneypotFormTest extends WebTestBase {
     // Set up required Honeypot configuration.
     $honeypot_config = config('honeypot.settings');
     $honeypot_config->set('element_name', 'url');
-    $honeypot_config->set('time_limit', 0); // Disable time_limit protection.
-    $honeypot_config->set('protect_all_forms', TRUE); // Test protecting all forms.
+    // Disable time_limit protection.
+    $honeypot_config->set('time_limit', 0);
+    // Test protecting all forms.
+    $honeypot_config->set('protect_all_forms', TRUE);
     $honeypot_config->set('log', FALSE);
     $honeypot_config->save();
 
@@ -59,7 +61,7 @@ class HoneypotFormTest extends WebTestBase {
     }
 
     // Set up admin user.
-    $this->admin_user = $this->drupalCreateUser(array(
+    $this->adminUser = $this->drupalCreateUser(array(
       'administer honeypot',
       'bypass honeypot protection',
       'administer content types',
@@ -71,7 +73,7 @@ class HoneypotFormTest extends WebTestBase {
     ));
 
     // Set up web user.
-    $this->web_user = $this->drupalCreateUser(array(
+    $this->webUser = $this->drupalCreateUser(array(
       'access comments',
       'post comments',
       'create article content',
@@ -128,7 +130,7 @@ class HoneypotFormTest extends WebTestBase {
     $honeypot_config = config('honeypot.settings')->set('time_limit', 0)->save();
 
     // Log in the web user.
-    $this->drupalLogin($this->web_user);
+    $this->drupalLogin($this->webUser);
 
     // Set up form and submit it.
     $edit["comment_body[0][value]"] = $comment;
@@ -140,7 +142,7 @@ class HoneypotFormTest extends WebTestBase {
     $comment = 'Test comment.';
 
     // Log in the web user.
-    $this->drupalLogin($this->web_user);
+    $this->drupalLogin($this->webUser);
 
     // Set up form and submit it.
     $edit["comment_body[0][value]"] = $comment;
@@ -151,7 +153,7 @@ class HoneypotFormTest extends WebTestBase {
 
   public function testProtectCommentFormHoneypotBypass() {
     // Log in the admin user.
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     // Get the comment reply form and ensure there's no 'url' field.
     $this->drupalGet('comment/reply/node/' . $this->node->id() . '/comment');

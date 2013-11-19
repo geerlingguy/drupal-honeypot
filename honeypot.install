@@ -6,7 +6,7 @@
  */
 
 /**
- * Implements of hook_schema().
+ * Implements hook_schema().
  */
 function honeypot_schema() {
   $schema['honeypot_user'] = array(
@@ -38,7 +38,7 @@ function honeypot_schema() {
  */
 function honeypot_install() {
   drupal_set_message(t("Honeypot installed successfully. Please !link to protect your forms from spam bots.", array(
-    '!link' => l(t('configure Honeypot'), 'admin/config/content/honeypot')
+    '!link' => l(t('configure Honeypot'), 'admin/config/content/honeypot'),
   )));
 }
 
