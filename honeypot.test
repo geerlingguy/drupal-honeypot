@@ -9,8 +9,8 @@
  * Test the functionality of the Honeypot module for an admin user.
  */
 class HoneypotFormTestCase extends DrupalWebTestCase {
-  protected $admin_user;
-  protected $web_user;
+  protected $adminUser;
+  protected $webUser;
   protected $node;
 
   public static function getInfo() {
@@ -27,8 +27,10 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
 
     // Set up required Honeypot variables.
     variable_set('honeypot_element_name', 'url');
-    variable_set('honeypot_time_limit', 0); // Disable time_limit protection.
-    variable_set('honeypot_protect_all_forms', TRUE); // Test protecting all forms.
+    // Disable time_limit protection.
+    variable_set('honeypot_time_limit', 0);
+    // Test protecting all forms.
+    variable_set('honeypot_protect_all_forms', TRUE);
     variable_set('honeypot_log', FALSE);
 
     // Set up other required variables.
@@ -36,7 +38,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     variable_set('user_register', USER_REGISTER_VISITORS);
 
     // Set up admin user.
-    $this->admin_user = $this->drupalCreateUser(array(
+    $this->adminUser = $this->drupalCreateUser(array(
       'administer honeypot',
       'bypass honeypot protection',
       'administer content types',
@@ -48,7 +50,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     ));
 
     // Set up web user.
-    $this->web_user = $this->drupalCreateUser(array(
+    $this->webUser = $this->drupalCreateUser(array(
       'access comments',
       'post comments',
       'create article content',
@@ -58,7 +60,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     $this->node = $this->drupalCreateNode(array(
       'type' => 'article',
       'promote' => 1,
-      'uid' => $this->web_user->uid,
+      'uid' => $this->webUser->uid,
     ));
   }
 
@@ -106,7 +108,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     variable_set('honeypot_time_limit', 0);
 
     // Log in the web user.
-    $this->drupalLogin($this->web_user);
+    $this->drupalLogin($this->webUser);
 
     // Set up form and submit it.
     $edit['comment_body[' . LANGUAGE_NONE . '][0][value]'] = $comment;
@@ -118,7 +120,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     $comment = 'Test comment.';
 
     // Log in the web user.
-    $this->drupalLogin($this->web_user);
+    $this->drupalLogin($this->webUser);
 
     // Set up form and submit it.
     $edit['comment_body[' . LANGUAGE_NONE . '][0][value]'] = $comment;
@@ -129,7 +131,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
 
   public function testProtectCommentFormHoneypotBypass() {
     // Log in the admin user.
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     // Get the comment reply form and ensure there's no 'url' field.
     $this->drupalGet('comment/reply/' . $this->node->nid);
