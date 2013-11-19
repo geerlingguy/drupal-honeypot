@@ -2,23 +2,24 @@
 
 /**
  * @file
- *
  * Install, update and uninstall functions for the Honeypot module.
  */
 
 /**
- * Implements hook_install().
+ * Implementation of hook_install().
  */
 function honeypot_install() {
+  $t = get_t();
+
   // Create tables.
   drupal_install_schema('honeypot');
-  drupal_set_message(t("Honeypot installed successfully. Please !link to protect your forms from spam bots.", array(
-    '!link' => l(t('configure Honeypot'), 'admin/settings/honeypot')
+  drupal_set_message($t("Honeypot installed successfully. Please !link to protect your forms from spam bots.", array(
+    '!link' => l($t('configure Honeypot'), 'admin/settings/honeypot'),
   )));
 }
 
 /**
- * Implements hook_uninstall().
+ * Implementation of hook_uninstall().
  */
 function honeypot_uninstall() {
   db_query("DELETE from {variable} WHERE name LIKE 'honeypot_%'");
