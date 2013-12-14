@@ -189,16 +189,16 @@ class HoneypotSettingsController implements FormInterface {
         // Good to go.
       }
       else {
-        form_set_error('time_limit', t("The time limit must be a positive integer or 0."));
+        form_set_error('time_limit', $form_state, t("The time limit must be a positive integer or 0."));
       }
     }
     else {
-      form_set_error('time_limit', t("The time limit must be a positive integer or 0."));
+      form_set_error('time_limit', $form_state, t("The time limit must be a positive integer or 0."));
     }
 
     // Make sure Honeypot element name only contains A-Z, 0-9.
     if (!preg_match("/^[-_a-zA-Z0-9]+$/", $form_state['values']['element_name'])) {
-      form_set_error('element_name', t("The element name cannot contain spaces or other special characters."));
+      form_set_error('element_name', $form_state, t("The element name cannot contain spaces or other special characters."));
     }
   }
 

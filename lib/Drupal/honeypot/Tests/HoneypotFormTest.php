@@ -123,6 +123,9 @@ class HoneypotFormTest extends WebTestBase {
     $this->assertText(t('There was a problem with your form submission. Please wait'), 'Registration form protected by time limit.');
   }
 
+  /**
+   * Test comment form protection.
+   */
   public function testProtectCommentFormNormal() {
     $comment = 'Test comment.';
 
@@ -158,5 +161,34 @@ class HoneypotFormTest extends WebTestBase {
     // Get the comment reply form and ensure there's no 'url' field.
     $this->drupalGet('comment/reply/node/' . $this->node->id() . '/comment');
     $this->assertNoText('id="edit-url" name="url"', 'Honeypot home page field not shown.');
+  }
+
+  /**
+   * Test node form protection.
+   */
+  public function testProtectNodeFormTooFast() {
+    // Log in the admin user.
+    $this->drupalLogin($this->webUser);
+
+    // Reset the time limit to 5 seconds.
+    $honeypot_config = config('honeypot.settings')->set('time_limit', 5)->save();
+
+    // Set up the form and submit it.
+    $edit["title[0][value]"] = 'Test Page';
+    $this->drupalPostForm('node/add/article', $edit, t('Save'));
+    $this->assertText(t('There was a problem with your form submission.'), 'Honeypot node form timestamp protection works.');
+  }
+
+  /**
+   * Test node form protection.
+   */
+  public function testProtectNodeFormPreviewPassthru() {
+    // Log in the admin user.
+    $this->drupalLogin($this->webUser);
+
+    // Post a node form using the 'Preview' button and make sure it's allowed.
+    $edit["title[0][value]"] = 'Test Page';
+    $this->drupalPostForm('node/add/article', $edit, t('Preview'));
+    $this->assertNoText(t('There was a problem with your form submission.'), 'Honeypot not blocking node form previews.');
   }
 }
