@@ -59,9 +59,9 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
     return;
   }
 
+  drupal_set_message($form_id);
   $unprotected_forms = array(
-    'user_login',
-    'user_login_block',
+    'user_login_form',
     'search_form',
     'search_block_form',
     'views_exposed_form',
