@@ -1,7 +1,14 @@
+unprotected_forms:
+  - 'user_login_form'
+  - 'search_form'
+  - 'search_block_form'
+  - 'views_exposed_form'
+  - 'honeypot_settings_form'
 protect_all_forms: 0
 log: 0
 element_name: 'url'
 time_limit: 5
+expire: 300
 form_settings:
   user_register_form: 0
   user_pass: 0

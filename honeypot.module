@@ -59,17 +59,11 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
     return;
   }
 
-  drupal_set_message($form_id);
-  $unprotected_forms = array(
-    'user_login_form',
-    'search_form',
-    'search_block_form',
-    'views_exposed_form',
-    'honeypot_settings_form',
-  );
+  // Get list of unprotected forms and setting for whether to protect all forms.
+  $unprotected_forms = \Drupal::config('honeypot.settings')->get('unprotected_forms');
+  $protect_all_forms = \Drupal::config('honeypot.settings')->get('protect_all_forms');
 
   // If configured to protect all forms, add protection to every form.
-  $protect_all_forms = \Drupal::config('honeypot.settings')->get('protect_all_forms');
   if ($protect_all_forms && !in_array($form_id, $unprotected_forms)) {
     // Don't protect system forms - only admins should have access, and system
     // forms may be programmatically submitted by drush and other modules.
