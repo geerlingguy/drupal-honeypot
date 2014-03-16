@@ -42,7 +42,7 @@ function honeypot_permission() {
  */
 function honeypot_cron() {
   // Delete {honeypot_user} entries older than the value of honeypot_expire.
-  $expire_limit = config('honeypot.settings')->get('expire');
+  $expire_limit = \Drupal::config('honeypot.settings')->get('expire');
   db_delete('honeypot_user')
     ->condition('timestamp', time() - $expire_limit, '<')
     ->execute();
@@ -69,7 +69,7 @@ function honeypot_form_alter(&$form, &$form_state, $form_id) {
   );
 
   // If configured to protect all forms, add protection to every form.
-  $protect_all_forms = config('honeypot.settings')->get('protect_all_forms');
+  $protect_all_forms = \Drupal::config('honeypot.settings')->get('protect_all_forms');
   if ($protect_all_forms && !in_array($form_id, $unprotected_forms)) {
     // Don't protect system forms - only admins should have access, and system
     // forms may be programmatically submitted by drush and other modules.
@@ -101,11 +101,11 @@ function honeypot_get_protected_forms() {
 
   // If the data isn't already in memory, get from cache or look it up fresh.
   if (!isset($forms)) {
-    if ($cache = cache()->get('honeypot_protected_forms')) {
+    if ($cache = \Drupal::cache()->get('honeypot_protected_forms')) {
       $forms = $cache->data;
     }
     else {
-      $form_settings = config('honeypot.settings')->get('form_settings');
+      $form_settings = \Drupal::config('honeypot.settings')->get('form_settings');
       if (!empty($form_settings)) {
         // Add each form that's enabled to the $forms array.
         foreach ($form_settings as $form_id => $enabled) {
@@ -119,7 +119,7 @@ function honeypot_get_protected_forms() {
       }
 
       // Save the cached data.
-      cache()->set('honeypot_protected_forms', $forms);
+      \Drupal::cache()->set('honeypot_protected_forms', $forms);
     }
   }
 
@@ -147,7 +147,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
   // Build the honeypot element.
   if (in_array('honeypot', $options)) {
     // Get the element name (default is generic 'url').
-    $honeypot_element = config('honeypot.settings')->get('element_name');
+    $honeypot_element = \Drupal::config('honeypot.settings')->get('element_name');
 
     // Build the honeypot element.
     $honeypot_class = $honeypot_element . '-textfield';
@@ -170,7 +170,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
   }
 
   // Build the time restriction element (if it's not disabled).
-  if (in_array('time_restriction', $options) && config('honeypot.settings')->get('time_limit') != 0) {
+  if (in_array('time_restriction', $options) && \Drupal::config('honeypot.settings')->get('time_limit') != 0) {
     // Set the current time in a hidden value to be checked later.
     $form['honeypot_time'] = array(
       '#type' => 'hidden',

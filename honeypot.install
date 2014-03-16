@@ -47,7 +47,7 @@ function honeypot_install() {
  */
 function honeypot_uninstall() {
   // Clear the bootstrap cache.
-  cache('bootstrap')->deleteAll();
+  \Drupal::cache('bootstrap')->deleteAll();
 }
 
 /**

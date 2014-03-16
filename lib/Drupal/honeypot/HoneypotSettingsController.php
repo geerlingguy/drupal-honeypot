@@ -7,6 +7,7 @@
 
 namespace Drupal\honeypot;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\FormInterface;
 
 /**
@@ -51,20 +52,20 @@ class HoneypotSettingsController implements FormInterface {
       '#type' => 'checkbox',
       '#title' => t('Protect all forms with Honeypot'),
       '#description' => t('Enable Honeypot protection for ALL forms on this site (it is best to only enable Honeypot for the forms you need below).'),
-      '#default_value' => config('honeypot.settings')->get('protect_all_forms'),
+      '#default_value' => \Drupal::config('honeypot.settings')->get('protect_all_forms'),
     );
     $form['configuration']['protect_all_forms']['#description'] .= '<br />' . t('<strong>Page caching will be disabled on any page where a form is present if the Honeypot time limit is not set to 0.</strong>');
     $form['configuration']['log'] = array(
       '#type' => 'checkbox',
       '#title' => t('Log blocked form submissions'),
       '#description' => t('Log submissions that are blocked due to Honeypot protection.'),
-      '#default_value' => config('honeypot.settings')->get('log'),
+      '#default_value' => \Drupal::config('honeypot.settings')->get('log'),
     );
     $form['configuration']['element_name'] = array(
       '#type' => 'textfield',
       '#title' => t('Honeypot element name'),
       '#description' => t("The name of the Honeypot form field. It's usually most effective to use a generic name like email, homepage, or name, but this should be changed if it interferes with fields that are already in your forms. Must not contain spaces or special characters."),
-      '#default_value' => config('honeypot.settings')->get('element_name'),
+      '#default_value' => \Drupal::config('honeypot.settings')->get('element_name'),
       '#required' => TRUE,
       '#size' => 30,
     );
@@ -72,7 +73,7 @@ class HoneypotSettingsController implements FormInterface {
       '#type' => 'textfield',
       '#title' => t('Honeypot time limit'),
       '#description' => t('Minimum time required before form should be considered entered by a human instead of a bot. Set to 0 to disable.'),
-      '#default_value' => config('honeypot.settings')->get('time_limit'),
+      '#default_value' => \Drupal::config('honeypot.settings')->get('time_limit'),
       '#required' => TRUE,
       '#size' => 5,
       '#field_suffix' => t('seconds'),
@@ -80,7 +81,7 @@ class HoneypotSettingsController implements FormInterface {
     $form['configuration']['time_limit']['#description'] .= '<br />' . t('<strong>Page caching will be disabled if there is a form protected by time limit on the page.</strong>');
 
     // Honeypot Enabled forms.
-    $form_settings = config('honeypot.settings')->get('form_settings');
+    $form_settings = \Drupal::config('honeypot.settings')->get('form_settings');
     $form['form_settings'] = array(
       '#type' => 'fieldset',
       '#title' => t('Honeypot Enabled Forms'),
@@ -206,7 +207,7 @@ class HoneypotSettingsController implements FormInterface {
    * Implements \Drupal\Core\Form\FormInterface::submitForm().
    */
   public function submitForm(array &$form, array &$form_state) {
-    $config = config('honeypot.settings');
+    $config = \Drupal::config('honeypot.settings');
 
     // Save all the non-form-id values from $form_state.
     foreach ($form_state['values'] as $key => $value) {
@@ -221,7 +222,7 @@ class HoneypotSettingsController implements FormInterface {
     $config->save();
 
     // Clear the honeypot protected forms cache.
-    cache_invalidate_tags(array('honeypot_protected_forms' => TRUE));
+    Cache::invalidateTags(array('honeypot_protected_forms' => TRUE));
 
     // Tell the user the settings have been saved.
     drupal_set_message(t('The configuration options have been saved.'));
