@@ -9,6 +9,7 @@ namespace Drupal\honeypot\Tests;
 
 use Drupal\simpletest\WebTestBase;
 use Drupal\Core\Database\Database;
+use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 
 /**
  * Test the functionality of the Honeypot module for an admin user.
@@ -38,7 +39,7 @@ class HoneypotFormTest extends WebTestBase {
     parent::setUp();
 
     // Set up required Honeypot configuration.
-    $honeypot_config = config('honeypot.settings');
+    $honeypot_config = \Drupal::config('honeypot.settings');
     $honeypot_config->set('element_name', 'url');
     // Disable time_limit protection.
     $honeypot_config->set('time_limit', 0);
@@ -48,7 +49,7 @@ class HoneypotFormTest extends WebTestBase {
     $honeypot_config->save();
 
     // Set up other required configuration.
-    $user_config = config('user.settings');
+    $user_config = \Drupal::config('user.settings');
     $user_config->set('verify_mail', TRUE);
     $user_config->set('register', USER_REGISTER_VISITORS);
     $user_config->save();
@@ -82,7 +83,7 @@ class HoneypotFormTest extends WebTestBase {
     // Set up example node.
     $this->node = $this->drupalCreateNode(array(
       'type' => 'article',
-      'comment' => COMMENT_OPEN,
+      'comment' => CommentItemInterface::OPEN,
     ));
   }
 
@@ -112,7 +113,7 @@ class HoneypotFormTest extends WebTestBase {
 
   public function testProtectRegisterUserTooFast() {
     // Enable time limit for honeypot.
-    $honeypot_config = config('honeypot.settings')->set('time_limit', 5)->save();
+    $honeypot_config = \Drupal::config('honeypot.settings')->set('time_limit', 5)->save();
 
     // Set up form and submit it.
     $edit['name'] = $this->randomName();
@@ -130,7 +131,7 @@ class HoneypotFormTest extends WebTestBase {
     $comment = 'Test comment.';
 
     // Disable time limit for honeypot.
-    $honeypot_config = config('honeypot.settings')->set('time_limit', 0)->save();
+    $honeypot_config = \Drupal::config('honeypot.settings')->set('time_limit', 0)->save();
 
     // Log in the web user.
     $this->drupalLogin($this->webUser);
@@ -171,7 +172,7 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->webUser);
 
     // Reset the time limit to 5 seconds.
-    $honeypot_config = config('honeypot.settings')->set('time_limit', 5)->save();
+    $honeypot_config = \Drupal::config('honeypot.settings')->set('time_limit', 5)->save();
 
     // Set up the form and submit it.
     $edit["title[0][value]"] = 'Test Page';
