@@ -1,4 +1,4 @@
-honeypot__config:
+honeypot.config:
   path: '/admin/config/content/honeypot'
   defaults:
     _form: '\Drupal\honeypot\HoneypotSettingsController'

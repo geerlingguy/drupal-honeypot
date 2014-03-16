@@ -6,19 +6,16 @@
  */
 
 /**
- * Implements hook_menu().
+ * Implements hook_menu_link_defaults().
  */
-function honeypot_menu() {
-  $items['admin/config/content/honeypot'] = array(
-    'title' => 'Honeypot configuration',
+function honeypot_menu_link_defaults() {
+  $links['honeypot.config'] = array(
+    'link_title' => 'Honeypot configuration',
     'description' => 'Configure Honeypot spam prevention and the forms on which Honeypot will be used.',
-    // TODO - Remove once http://drupal.org/node/1845402 is resolved?
-    'page callback' => 'NOT_USED',
-    'access callback' => 'user_access',
-    'access arguments' => array('administer honeypot'),
+    'parent' => 'system.admin.content',
+    'route_name' => 'honeypot.config',
   );
-
-  return $items;
+  return $links;
 }
 
 /**
