@@ -24,7 +24,7 @@ class HoneypotFormTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('honeypot', 'node', 'comment');
+  public static $modules = array('honeypot', 'node', 'comment', 'contact');
 
   public static function getInfo() {
     return array(
@@ -78,6 +78,7 @@ class HoneypotFormTest extends WebTestBase {
       'access comments',
       'post comments',
       'create article content',
+      'access site-wide contact form'
     ));
 
     // Set up example node.
@@ -191,5 +192,19 @@ class HoneypotFormTest extends WebTestBase {
     $edit["title[0][value]"] = 'Test Page';
     $this->drupalPostForm('node/add/article', $edit, t('Preview'));
     $this->assertNoText(t('There was a problem with your form submission.'), 'Honeypot not blocking node form previews.');
+  }
+
+  public function testProtectContactForm() {
+    $this->drupalLogin($this->adminUser);
+
+    // Submit the admin form so we can verify the right forms are displayed.
+    $this->drupalPostForm('admin/config/content/honeypot', array(
+      'form_settings[feedback_contact_message_form]' => TRUE,
+      'protect_all_forms' => FALSE,
+    ), t('Save configuration'));
+
+    $this->drupalLogin($this->webUser);
+    $this->drupalGet('contact/feedback');
+    $this->assertField('url', 'Honeypot field is added to Contact form.');
   }
 }

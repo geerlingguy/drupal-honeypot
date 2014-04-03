@@ -7,7 +7,7 @@
 
 namespace Drupal\honeypot;
 
-use Drupal\Core\Cache\Cache;
+use Drupal\Component\Utility\String;
 use Drupal\Core\Form\FormInterface;
 
 /**
@@ -123,21 +123,23 @@ class HoneypotSettingsController implements FormInterface {
     }
 
     // If contact.module enabled, add contact forms.
-    if (module_exists('contact')) {
-      // TODO D8 - Sitewide contact forms are now dynamically-named.
+    if (\Drupal::moduleHandler()->moduleExists('contact')) {
       $form['form_settings']['contact_forms'] = array('#markup' => '<h5>' . t('Contact Forms') . '</h5>');
-      // Sitewide contact form.
-      $form['form_settings']['contact_site_form'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Sitewide Contact form'),
-        '#default_value' => $this->getFormSettingsValue($form_settings, 'contact_site_form'),
-      );
-      // Sitewide personal form.
-      $form['form_settings']['contact_personal_form'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Personal Contact forms'),
-        '#default_value' => $this->getFormSettingsValue($form_settings, '_contact_message_form'),
-      );
+
+      $bundles = \Drupal::entityManager()->getBundleInfo('contact_message');
+      $formController = \Drupal::entityManager()->getFormController('contact_message', 'default');
+
+      foreach ($bundles as $bundle_key => $bundle) {
+        $stub = entity_create('contact_message', array('category' => $bundle_key));
+        $formController->setEntity($stub);
+        $form_id = $formController->getFormId();
+
+        $form['form_settings'][$form_id] = array(
+          '#type' => 'checkbox',
+          '#title' => String::checkPlain($bundle['label']),
+          '#default_value' => $this->getFormSettingsValue($form_settings, $form_id),
+        );
+      }
     }
 
     // Get node types for node forms and node comment forms.
@@ -222,7 +224,7 @@ class HoneypotSettingsController implements FormInterface {
     $config->save();
 
     // Clear the honeypot protected forms cache.
-    Cache::invalidateTags(array('honeypot_protected_forms' => TRUE));
+    \Drupal::cache()->delete('honeypot_protected_forms');
 
     // Tell the user the settings have been saved.
     drupal_set_message(t('The configuration options have been saved.'));
