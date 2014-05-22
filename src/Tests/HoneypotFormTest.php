@@ -89,6 +89,14 @@ class HoneypotFormTest extends WebTestBase {
   }
 
   /**
+   * Make sure user login form is not protected.
+   */
+  public function testUserLoginNotProtected() {
+    $this->drupalGet('user');
+    $this->assertNoText('id="edit-url" name="url"', 'Honeypot not enabled on user login form.');
+  }
+
+  /**
    * Test user registration (anonymous users).
    */
   public function testProtectRegisterUserNormal() {
