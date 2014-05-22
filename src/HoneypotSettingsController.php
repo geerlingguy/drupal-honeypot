@@ -127,7 +127,7 @@ class HoneypotSettingsController implements FormInterface {
       $form['form_settings']['contact_forms'] = array('#markup' => '<h5>' . t('Contact Forms') . '</h5>');
 
       $bundles = \Drupal::entityManager()->getBundleInfo('contact_message');
-      $formController = \Drupal::entityManager()->getFormController('contact_message', 'default');
+      $formController = \Drupal::entityManager()->getFormObject('contact_message', 'default');
 
       foreach ($bundles as $bundle_key => $bundle) {
         $stub = entity_create('contact_message', array('category' => $bundle_key));
