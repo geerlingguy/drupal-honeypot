@@ -6,19 +6,6 @@
  */
 
 /**
- * Implements hook_menu_link_defaults().
- */
-function honeypot_menu_link_defaults() {
-  $links['honeypot.admin.config'] = array(
-    'link_title' => 'Honeypot configuration',
-    'description' => 'Configure Honeypot spam prevention and the forms on which Honeypot will be used.',
-    'parent' => 'system.admin.config.content',
-    'route_name' => 'honeypot.config',
-  );
-  return $links;
-}
-
-/**
  * Implements hook_permission().
  */
 function honeypot_permission() {
