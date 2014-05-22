@@ -78,7 +78,7 @@ class HoneypotFormTest extends WebTestBase {
       'access comments',
       'post comments',
       'create article content',
-      'access site-wide contact form'
+      'access site-wide contact form',
     ));
 
     // Set up example node.
