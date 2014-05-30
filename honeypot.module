@@ -223,6 +223,8 @@ function _honeypot_time_restriction_validate($element, &$form_state) {
   // If not, throw an error.
   if (time() < ($honeypot_time + $time_limit)) {
     _honeypot_log($form_state['values']['form_id'], 'honeypot_time');
+    // Get the time limit again, since it increases after first failure.
+    $time_limit = honeypot_get_time_limit($form_state['values']);
     $form_state['values']['honeypot_time'] = time();
     form_set_error('', t('There was a problem with your form submission. Please wait @limit seconds and try again.', array('@limit' => $time_limit)));
   }
