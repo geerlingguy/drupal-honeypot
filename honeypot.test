@@ -98,7 +98,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     $this->drupalPost('user/register', $edit, t('Create new account'));
 
     // Form should have error message.
-    $this->assertText(t('There was a problem with your form submission. Please wait'), 'Registration form protected by time limit.');
+    $this->assertText(t('There was a problem with your form submission. Please wait 6 seconds and try again.'), 'Registration form protected by time limit.');
   }
 
   /**
