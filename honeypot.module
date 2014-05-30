@@ -252,7 +252,7 @@ function honeypot_get_time_limit($form_values = array()) {
     // Get value from {flood} table for anonymous users.
     else {
       $number = db_query("SELECT COUNT(*) FROM {flood} WHERE event = :event AND identifier = :hostname AND timestamp > :time", array(
-        ':event' => 'honeypot',
+        ':event' => 'honeypot.event',
         ':hostname' => Drupal::request()->getClientIp(),
         ':time' => time() - \Drupal::config('honeypot.settings')->get('expire'),
       ))->fetchField();
