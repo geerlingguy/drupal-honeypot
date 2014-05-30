@@ -223,7 +223,6 @@ function _honeypot_time_restriction_validate($element, &$form_state) {
   // If not, throw an error.
   if (time() < ($honeypot_time + $time_limit)) {
     _honeypot_log($form_state['values']['form_id'], 'honeypot_time');
-    $time_limit = honeypot_get_time_limit($form_state['values']);
     $form_state['values']['honeypot_time'] = time();
     form_set_error('', t('There was a problem with your form submission. Please wait @limit seconds and try again.', array('@limit' => $time_limit)));
   }
@@ -272,7 +271,7 @@ function honeypot_get_time_limit($form_values = array()) {
       $number = db_result(db_query("SELECT COUNT(*) FROM {flood} WHERE event = '%s' AND hostname = '%s' AND timestamp > %d", 'honeypot', ip_address(), time() - variable_get('honeypot_expire', 300)));
     }
     // Don't add more than 30 days' worth of extra time.
-    $honeypot_time_limit = $honeypot_time_limit + (int) min($honeypot_time_limit + exp($number), 2592000);
+    $honeypot_time_limit = (int) min($honeypot_time_limit + exp($number) - 1, 2592000);
     $additions = module_invoke_all('honeypot_time_limit', $honeypot_time_limit, $form_values, $number);
     if (count($additions)) {
       $honeypot_time_limit += array_sum($additions);
