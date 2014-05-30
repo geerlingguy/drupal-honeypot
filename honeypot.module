@@ -312,7 +312,7 @@ function honeypot_get_time_limit($form_values = array()) {
       ))->fetchField();
     }
     // Don't add more than 30 days' worth of extra time.
-    $honeypot_time_limit = $honeypot_time_limit + (int) min($honeypot_time_limit + exp($number), 2592000);
+    $honeypot_time_limit = (int) min($honeypot_time_limit + exp($number) - 1, 2592000);
     $additions = module_invoke_all('honeypot_time_limit', $honeypot_time_limit, $form_values, $number);
     if (count($additions)) {
       $honeypot_time_limit += array_sum($additions);
