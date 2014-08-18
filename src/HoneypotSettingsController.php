@@ -9,6 +9,7 @@ namespace Drupal\honeypot;
 
 use Drupal\Component\Utility\String;
 use Drupal\Core\Form\FormInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Returns responses for Honeypot module routes.
@@ -38,9 +39,9 @@ class HoneypotSettingsController implements FormInterface {
   }
 
   /**
-   * Implements \Drupal\Core\Form\FormInterface::buildForm().
+   * {@inheritdoc}
    */
-  public function buildForm(array $form, array &$form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state) {
     // Honeypot Configuration.
     $form['configuration'] = array(
       '#type' => 'fieldset',
@@ -114,7 +115,7 @@ class HoneypotSettingsController implements FormInterface {
 
     // If webform.module enabled, add webforms.
     // TODO D8 - See if D8 version of Webform.module still uses this form ID.
-    if (module_exists('webform')) {
+    if (\Drupal::moduleHandler()->moduleExists('webform')) {
       $form['form_settings']['webforms'] = array(
         '#type' => 'checkbox',
         '#title' => t('Webforms (all)'),
@@ -182,37 +183,37 @@ class HoneypotSettingsController implements FormInterface {
   }
 
   /**
-   * Implements \Drupal\Core\Form\FormInterface::validateForm().
+   * {@inheritdoc}
    */
-  public function validateForm(array &$form, array &$form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state) {
     // Make sure the time limit is a positive integer or 0.
-    $time_limit = $form_state['values']['time_limit'];
+    $time_limit = $form_state->getValue('time_limit');
     if ((is_numeric($time_limit) && $time_limit > 0) || $time_limit === '0') {
       if (ctype_digit($time_limit)) {
         // Good to go.
       }
       else {
-        form_set_error('time_limit', $form_state, t("The time limit must be a positive integer or 0."));
+        $form_state->setError('time_limit', t("The time limit must be a positive integer or 0."));
       }
     }
     else {
-      form_set_error('time_limit', $form_state, t("The time limit must be a positive integer or 0."));
+      $form_state->setError('time_limit', t("The time limit must be a positive integer or 0."));
     }
 
     // Make sure Honeypot element name only contains A-Z, 0-9.
     if (!preg_match("/^[-_a-zA-Z0-9]+$/", $form_state['values']['element_name'])) {
-      form_set_error('element_name', $form_state, t("The element name cannot contain spaces or other special characters."));
+      $form_state->setError('element_name', t("The element name cannot contain spaces or other special characters."));
     }
   }
 
   /**
-   * Implements \Drupal\Core\Form\FormInterface::submitForm().
+   * {@inheritdoc}
    */
-  public function submitForm(array &$form, array &$form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = \Drupal::config('honeypot.settings');
 
     // Save all the non-form-id values from $form_state.
-    foreach ($form_state['values'] as $key => $value) {
+    foreach ($form_state->getValues() as $key => $value) {
       if ($key != 'form_settings') {
         $config->set($key, $value);
       }
