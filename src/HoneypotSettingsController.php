@@ -158,7 +158,7 @@ class HoneypotSettingsController implements FormInterface {
       }
 
       // Comment forms.
-      if (module_exists('comment')) {
+      if (\Drupal::moduleHandler()->moduleExists('comment')) {
         $form['form_settings']['comment_forms'] = array('#markup' => '<h5>' . t('Comment Forms') . '</h5>');
         foreach ($types as $type) {
           $id = 'comment_node_' . $type->type . '_comment_form';
