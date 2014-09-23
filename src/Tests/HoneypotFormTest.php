@@ -106,7 +106,7 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalPostForm('user/register', $edit, t('Create new account'));
 
     // Form should have been submitted successfully.
-    $this->assertText(t('A welcome message with further instructions has been sent to your e-mail address.'), 'User registered successfully.');
+    $this->assertText(t('A welcome message with further instructions has been sent to your email address.'), 'User registered successfully.');
   }
 
   public function testProtectUserRegisterHoneypotFilled() {
