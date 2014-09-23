@@ -9,27 +9,27 @@
  * Implements hook_schema().
  */
 function honeypot_schema() {
-  $schema['honeypot_user'] = array(
+  $schema['honeypot_user'] = [
     'description' => 'Table that stores failed attempts to submit a form.',
-    'fields' => array(
-      'uid' => array(
+    'fields' => [
+      'uid' => [
         'description' => 'Foreign key to {users}.uid; uniquely identifies a Drupal user to whom this ACL data applies.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
-      ),
-      'timestamp' => array(
+      ],
+      'timestamp' => [
         'description' => 'Date/time when the form submission failed, as Unix timestamp.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
-      ),
-    ),
-    'indexes' => array(
-      'uid' => array('uid'),
-      'timestamp' => array('timestamp'),
-    ),
-  );
+      ],
+    ],
+    'indexes' => [
+      'uid' => ['uid'],
+      'timestamp' => ['timestamp'],
+    ],
+  ];
   return $schema;
 }
 
@@ -37,9 +37,9 @@ function honeypot_schema() {
  * Implements hook_install().
  */
 function honeypot_install() {
-  drupal_set_message(t("Honeypot installed successfully. Please !link to protect your forms from spam bots.", array(
+  drupal_set_message(t("Honeypot installed successfully. Please !link to protect your forms from spam bots.", [
     '!link' => l(t('configure Honeypot'), 'admin/config/content/honeypot'),
-  )));
+  ]));
 }
 
 /**
@@ -61,7 +61,7 @@ function honeypot_update_8000() {
 
     if (!empty($variables_to_update)) {
       // Build a map of old variable names to new honeypot.settings names.
-      $variable_map = array();
+      $variable_map = [];
       foreach ($variables_to_update as $variable) {
         $variable_map[$variable] = substr($variable, 9, strlen($variable));
       }

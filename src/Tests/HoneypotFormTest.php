@@ -24,14 +24,14 @@ class HoneypotFormTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('honeypot', 'node', 'comment', 'contact');
+  public static $modules = ['honeypot', 'node', 'comment', 'contact'];
 
   public static function getInfo() {
-    return array(
+    return [
       'name' => 'Honeypot form protections',
       'description' => 'Ensure that Honeypot protects site forms properly.',
       'group' => 'Honeypot',
-    );
+    ];
   }
 
   public function setUp() {
@@ -56,13 +56,13 @@ class HoneypotFormTest extends WebTestBase {
 
     // Create an Article node type.
     if ($this->profile != 'standard') {
-      $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
+      $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
       // Create comment field on article.
       $this->container->get('comment.manager')->addDefaultField('node', 'article');
     }
 
     // Set up admin user.
-    $this->adminUser = $this->drupalCreateUser(array(
+    $this->adminUser = $this->drupalCreateUser([
       'administer honeypot',
       'bypass honeypot protection',
       'administer content types',
@@ -71,21 +71,21 @@ class HoneypotFormTest extends WebTestBase {
       'post comments',
       'skip comment approval',
       'administer comments',
-    ));
+    ]);
 
     // Set up web user.
-    $this->webUser = $this->drupalCreateUser(array(
+    $this->webUser = $this->drupalCreateUser([
       'access comments',
       'post comments',
       'create article content',
       'access site-wide contact form',
-    ));
+    ]);
 
     // Set up example node.
-    $this->node = $this->drupalCreateNode(array(
+    $this->node = $this->drupalCreateNode([
       'type' => 'article',
       'comment' => CommentItemInterface::OPEN,
-    ));
+    ]);
   }
 
   /**
@@ -206,10 +206,10 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->adminUser);
 
     // Submit the admin form so we can verify the right forms are displayed.
-    $this->drupalPostForm('admin/config/content/honeypot', array(
+    $this->drupalPostForm('admin/config/content/honeypot', [
       'form_settings[feedback_contact_message_form]' => TRUE,
       'protect_all_forms' => FALSE,
-    ), t('Save configuration'));
+    ], t('Save configuration'));
 
     $this->drupalLogin($this->webUser);
     $this->drupalGet('contact/feedback');

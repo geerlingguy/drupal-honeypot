@@ -38,7 +38,7 @@ function honeypot_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     // Don't protect system forms - only admins should have access, and system
     // forms may be programmatically submitted by drush and other modules.
     if (strpos($form_id, 'system_') === FALSE && strpos($form_id, 'search_') === FALSE && strpos($form_id, 'views_exposed_form_') === FALSE) {
-      honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
+      honeypot_add_form_protection($form, $form_state, ['honeypot', 'time_restriction']);
     }
   }
 
@@ -47,11 +47,11 @@ function honeypot_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     foreach ($forms_to_protect as $protect_form_id) {
       // For most forms, do a straight check on the form ID.
       if ($form_id == $protect_form_id) {
-        honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
+        honeypot_add_form_protection($form, $form_state, ['honeypot', 'time_restriction']);
       }
       // For webforms use a special check for variable form ID.
       elseif ($protect_form_id == 'webforms' && (strpos($form_id, 'webform_client_form') !== FALSE)) {
-        honeypot_add_form_protection($form, $form_state, array('honeypot', 'time_restriction'));
+        honeypot_add_form_protection($form, $form_state, ['honeypot', 'time_restriction']);
       }
     }
   }
@@ -79,7 +79,7 @@ function honeypot_get_protected_forms() {
         }
       }
       else {
-        $forms = array();
+        $forms = [];
       }
 
       // Save the cached data.
@@ -101,7 +101,7 @@ function honeypot_add_form_protection(&$form, FormStateInterface $form_state, $o
   $account = \Drupal::currentUser();
 
   // Allow other modules to alter the protections applied to this form.
-  drupal_alter('honeypot_form_protections', $options, $form);
+  \Drupal::moduleHandler()->alter('honeypot_form_protections', $options, $form);
 
   // Don't add any protections if the user can bypass the Honeypot.
   if ($account->hasPermission('bypass honeypot protection')) {
@@ -115,33 +115,33 @@ function honeypot_add_form_protection(&$form, FormStateInterface $form_state, $o
 
     // Build the honeypot element.
     $honeypot_class = $honeypot_element . '-textfield';
-    $form[$honeypot_element] = array(
+    $form[$honeypot_element] = [
       '#type' => 'textfield',
       '#title' => t('Leave this field blank'),
       '#size' => 20,
       '#weight' => 100,
-      '#attributes' => array('autocomplete' => 'off'),
-      '#element_validate' => array('_honeypot_honeypot_validate'),
+      '#attributes' => ['autocomplete' => 'off'],
+      '#element_validate' => ['_honeypot_honeypot_validate'],
       '#prefix' => '<div class="' . $honeypot_class . '">',
       '#suffix' => '</div>',
       // Hide honeypot.
-      '#attached' => array(
-        'css' => array(
-          '.' . $honeypot_class . ' { display: none !important; }' => array('type' => 'inline'),
-        ),
-      ),
-    );
+      '#attached' => [
+        'css' => [
+          '.' . $honeypot_class . ' { display: none !important; }' => ['type' => 'inline'],
+        ],
+      ],
+    ];
   }
 
   // Build the time restriction element (if it's not disabled).
   if (in_array('time_restriction', $options) && \Drupal::config('honeypot.settings')->get('time_limit') != 0) {
     // Set the current time in a hidden value to be checked later.
-    $form['honeypot_time'] = array(
+    $form['honeypot_time'] = [
       '#type' => 'hidden',
       '#title' => t('Timestamp'),
       '#default_value' => time(),
-      '#element_validate' => array('_honeypot_time_restriction_validate'),
-    );
+      '#element_validate' => ['_honeypot_time_restriction_validate'],
+    ];
 
     // Disable page caching to make sure timestamp isn't cached.
     $account = \Drupal::currentUser();
@@ -154,7 +154,7 @@ function honeypot_add_form_protection(&$form, FormStateInterface $form_state, $o
 
   // Allow other modules to react to addition of form protection.
   if (!empty($options)) {
-    module_invoke_all('honeypot_add_form_protection', $options, $form);
+    \Drupal::moduleHandler()->invokeAll('honeypot_add_form_protection', [$options, $form]);
   }
 }
 
@@ -167,8 +167,8 @@ function _honeypot_honeypot_validate($element, FormStateInterface $form_state) {
 
   // Make sure it's empty.
   if (!empty($honeypot_value)) {
-    _honeypot_log($form_state['values']['form_id'], 'honeypot');
-    $form_state->setError('', $form_state, t('There was a problem with your form submission. Please refresh the page and try again.'));
+    _honeypot_log($form_state->getValue('form_id'), 'honeypot');
+    $form_state->setErrorByName('', t('There was a problem with your form submission. Please refresh the page and try again.'));
   }
 }
 
@@ -193,7 +193,7 @@ function _honeypot_time_restriction_validate($element, FormStateInterface $form_
     _honeypot_log($form_state['values']['form_id'], 'honeypot_time');
     $time_limit = honeypot_get_time_limit();
     $form_state['values']['honeypot_time'] = time();
-    $form_state->setError('', $form_state, t('There was a problem with your form submission. Please wait @limit seconds and try again.', array('@limit' => $time_limit)));
+    $form_state->setError('', $form_state, t('There was a problem with your form submission. Please wait @limit seconds and try again.', ['@limit' => $time_limit]));
   }
 }
 
@@ -210,10 +210,10 @@ function _honeypot_time_restriction_validate($element, FormStateInterface $form_
 function _honeypot_log($form_id, $type) {
   honeypot_log_failure($form_id, $type);
   if (\Drupal::config('honeypot.settings')->get('log')) {
-    $variables = array(
+    $variables = [
       '%form'  => $form_id,
       '@cause' => ($type == 'honeypot') ? t('submission of a value in the honeypot field') : t('submission of the form in less than minimum required time'),
-    );
+    ];
     watchdog('honeypot', 'Blocked submission of %form due to @cause.', $variables);
   }
 }
@@ -233,19 +233,20 @@ function honeypot_get_time_limit($form_values = array()) {
     // Get value from {honeypot_user} table for authenticated users.
     $uid = $account->id();
     if ($uid) {
-      $number = db_query("SELECT COUNT(*) FROM {honeypot_user} WHERE uid = :uid", array(':uid' => $uid))->fetchField();
+      $number = db_query("SELECT COUNT(*) FROM {honeypot_user} WHERE uid = :uid", [':uid' => $uid])->fetchField();
     }
     // Get value from {flood} table for anonymous users.
     else {
-      $number = db_query("SELECT COUNT(*) FROM {flood} WHERE event = :event AND identifier = :hostname AND timestamp > :time", array(
+      $number = db_query("SELECT COUNT(*) FROM {flood} WHERE event = :event AND identifier = :hostname AND timestamp > :time", [
         ':event' => 'honeypot.event',
         ':hostname' => Drupal::request()->getClientIp(),
         ':time' => time() - \Drupal::config('honeypot.settings')->get('expire'),
-      ))->fetchField();
+      ])->fetchField();
     }
     // Don't add more than 30 days' worth of extra time.
     $honeypot_time_limit = (int) min($honeypot_time_limit + exp($number) - 1, 2592000);
-    $additions = module_invoke_all('honeypot_time_limit', $honeypot_time_limit, $form_values, $number);
+    // TODO - Only accepts two args.
+    $additions = \Drupal::moduleHandler()->invokeAll('honeypot_time_limit', [$honeypot_time_limit, $form_values, $number]);
     if (count($additions)) {
       $honeypot_time_limit += array_sum($additions);
     }
@@ -270,10 +271,10 @@ function honeypot_log_failure($form_id, $type) {
   // Log failed submissions for authenticated users.
   if ($uid) {
     db_insert('honeypot_user')
-      ->fields(array(
+      ->fields([
         'uid' => $uid,
         'timestamp' => time(),
-      ))
+      ])
       ->execute();
   }
   // Register flood event for anonymous users.
@@ -282,5 +283,6 @@ function honeypot_log_failure($form_id, $type) {
   }
 
   // Allow other modules to react to honeypot rejections.
-  module_invoke_all('honeypot_reject', $form_id, $uid, $type);
+  // TODO - Only accepts two args.
+  \Drupal::moduleHandler()->invokeAll('honeypot_reject', [$form_id, $uid, $type]);
 }
