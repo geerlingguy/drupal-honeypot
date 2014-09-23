@@ -176,24 +176,25 @@ function _honeypot_honeypot_validate($element, FormStateInterface $form_state) {
  * Validate honeypot's time restriction field.
  */
 function _honeypot_time_restriction_validate($element, FormStateInterface $form_state) {
+  $triggering_element = $form_state->getTriggeringElement();
   // Don't do anything if the triggering element is a preview button.
-  if ($form_state['triggering_element']['#value'] == t('Preview')) {
+  if ($triggering_element['#value'] == t('Preview')) {
     return;
   }
 
   // Get the time value.
-  $honeypot_time = $form_state['values']['honeypot_time'];
+  $honeypot_time = $form_state->getValue('honeypot_time');
 
   // Get the honeypot_time_limit.
-  $time_limit = honeypot_get_time_limit($form_state['values']);
+  $time_limit = honeypot_get_time_limit($form_state->getValues());
 
   // Make sure current time - (time_limit + form time value) is greater than 0.
   // If not, throw an error.
   if (time() < ($honeypot_time + $time_limit)) {
-    _honeypot_log($form_state['values']['form_id'], 'honeypot_time');
+    _honeypot_log($form_state->getValue('form_id'), 'honeypot_time');
     $time_limit = honeypot_get_time_limit();
-    $form_state['values']['honeypot_time'] = time();
-    $form_state->setError('', $form_state, t('There was a problem with your form submission. Please wait @limit seconds and try again.', ['@limit' => $time_limit]));
+    $form_state->setValue('honeypot_time', time());
+    $form_state->setErrorByName('', t('There was a problem with your form submission. Please wait @limit seconds and try again.', ['@limit' => $time_limit]));
   }
 }
 
