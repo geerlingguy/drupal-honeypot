@@ -101,7 +101,7 @@ class HoneypotFormTest extends WebTestBase {
    */
   public function testProtectRegisterUserNormal() {
     // Set up form and submit it.
-    $edit['name'] = $this->randomName();
+    $edit['name'] = $this->randomMachineName();
     $edit['mail'] = $edit['name'] . '@example.com';
     $this->drupalPostForm('user/register', $edit, t('Create new account'));
 
@@ -111,7 +111,7 @@ class HoneypotFormTest extends WebTestBase {
 
   public function testProtectUserRegisterHoneypotFilled() {
     // Set up form and submit it.
-    $edit['name'] = $this->randomName();
+    $edit['name'] = $this->randomMachineName();
     $edit['mail'] = $edit['name'] . '@example.com';
     $edit['url'] = 'http://www.example.com/';
     $this->drupalPostForm('user/register', $edit, t('Create new account'));
@@ -125,7 +125,7 @@ class HoneypotFormTest extends WebTestBase {
     $honeypot_config = \Drupal::config('honeypot.settings')->set('time_limit', 5)->save();
 
     // Set up form and submit it.
-    $edit['name'] = $this->randomName();
+    $edit['name'] = $this->randomMachineName();
     $edit['mail'] = $edit['name'] . '@example.com';
     $this->drupalPostForm('user/register', $edit, t('Create new account'));
 
