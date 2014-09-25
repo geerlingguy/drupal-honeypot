@@ -2,14 +2,15 @@
 
 /**
  * @file
- * Contains Drupal\honeypot\HoneypotSettingsController.
+ * Contains Drupal\honeypot\Controller\HoneypotSettingsController.
  */
 
-namespace Drupal\honeypot;
+namespace Drupal\honeypot\Controller;
 
 use Drupal\Component\Utility\String;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\NodeType;
 
 /**
  * Returns responses for Honeypot module routes.
@@ -144,7 +145,7 @@ class HoneypotSettingsController implements FormInterface {
     }
 
     // Get node types for node forms and node comment forms.
-    $types = node_type_get_types();
+    $types = NodeType::loadMultiple();
     if (!empty($types)) {
       // Node forms.
       $form['form_settings']['node_forms'] = ['#markup' => '<h5>' . t('Node Forms') . '</h5>'];
