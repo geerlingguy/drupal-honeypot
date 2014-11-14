@@ -215,7 +215,7 @@ function _honeypot_log($form_id, $type) {
       '%form'  => $form_id,
       '@cause' => ($type == 'honeypot') ? t('submission of a value in the honeypot field') : t('submission of the form in less than minimum required time'),
     ];
-    watchdog('honeypot', 'Blocked submission of %form due to @cause.', $variables);
+    \Drupal::logger('honeypot')->notice(t('Blocked submission of %form due to @cause.', $variables));
   }
 }
 
