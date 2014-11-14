@@ -172,6 +172,15 @@ class HoneypotSettingsController implements FormInterface {
       }
     }
 
+    // Store the keys we want to save in configuration when form is submitted.
+    $keys_to_save = array_keys($form['configuration']);
+    foreach ($keys_to_save as $key => $key_to_save) {
+      if (strpos($key_to_save, '#') !== FALSE) {
+        unset($keys_to_save[$key]);
+      }
+    }
+    $form_state->setStorage(['keys' => $keys_to_save]);
+
     // For now, manually add submit button. Hopefully, by the time D8 is
     // released, there will be something like system_settings_form() in D7.
     $form['actions']['#type'] = 'container';
@@ -212,10 +221,11 @@ class HoneypotSettingsController implements FormInterface {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = \Drupal::config('honeypot.settings');
+    $storage = $form_state->getStorage();
 
-    // Save all the non-form-id values from $form_state.
+    // Save all the Honeypot configuration items from $form_state.
     foreach ($form_state->getValues() as $key => $value) {
-      if ($key != 'form_settings') {
+      if (in_array($key, $storage['keys'])) {
         $config->set($key, $value);
       }
     }
