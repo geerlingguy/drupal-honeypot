@@ -12,7 +12,9 @@ use Drupal\Core\Database\Database;
 use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 
 /**
- * Test the functionality of the Honeypot module for an admin user.
+ * Test Honeypot spam protection functionality.
+ *
+ * @group honeypot
  */
 class HoneypotFormTest extends WebTestBase {
   protected $adminUser;
@@ -25,14 +27,6 @@ class HoneypotFormTest extends WebTestBase {
    * @var array
    */
   public static $modules = ['honeypot', 'node', 'comment', 'contact'];
-
-  public static function getInfo() {
-    return [
-      'name' => 'Honeypot form protections',
-      'description' => 'Ensure that Honeypot protects site forms properly.',
-      'group' => 'Honeypot',
-    ];
-  }
 
   public function setUp() {
     // Enable modules required for this test.
@@ -205,10 +199,12 @@ class HoneypotFormTest extends WebTestBase {
   public function testProtectContactForm() {
     $this->drupalLogin($this->adminUser);
 
+    // Disable 'protect_all_forms'.
+    $honeypot_config = \Drupal::config('honeypot.settings')->set('protect_all_forms', FALSE)->save();
+
     // Submit the admin form so we can verify the right forms are displayed.
     $this->drupalPostForm('admin/config/content/honeypot', [
       'form_settings[feedback_contact_message_form]' => TRUE,
-      'protect_all_forms' => FALSE,
     ], t('Save configuration'));
 
     $this->drupalLogin($this->webUser);
