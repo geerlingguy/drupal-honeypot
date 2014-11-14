@@ -10,6 +10,7 @@ namespace Drupal\honeypot\Tests;
 use Drupal\simpletest\WebTestBase;
 use Drupal\Core\Database\Database;
 use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
+use Drupal\contact\Entity\ContactForm;
 
 /**
  * Test Honeypot spam protection functionality.
@@ -201,6 +202,18 @@ class HoneypotFormTest extends WebTestBase {
 
     // Disable 'protect_all_forms'.
     $honeypot_config = \Drupal::config('honeypot.settings')->set('protect_all_forms', FALSE)->save();
+
+    // Create a Website feedback contact form.
+    $feedback_form = ContactForm::create([
+      'id' => 'feedback',
+      'label' => 'Website feedback',
+      'recipients' => [],
+      'reply' => '',
+      'weight' => 0,
+    ]);
+    $feedback_form->save();
+    $contact_settings = \Drupal::config('contact.settings');
+    $contact_settings->set('default_form', 'feedback')->save();
 
     // Submit the admin form so we can verify the right forms are displayed.
     $this->drupalPostForm('admin/config/content/honeypot', [
