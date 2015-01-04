@@ -52,24 +52,3 @@ function honeypot_uninstall() {
   // Clear the bootstrap cache.
   \Drupal::cache('bootstrap')->deleteAll();
 }
-
-/**
- * Upgrade Honeypot settings from Drupal 7 to Drupal 8.
- */
-function honeypot_update_8000() {
-  // If the variables table exists, there might be variables to be updated.
-  if (db_table_exists('variable')) {
-    // Get all the old variables.
-    $variables_to_update = db_query("SELECT name FROM {variable} WHERE name LIKE 'honeypot_%'")->fetchCol();
-
-    if (!empty($variables_to_update)) {
-      // Build a map of old variable names to new honeypot.settings names.
-      $variable_map = [];
-      foreach ($variables_to_update as $variable) {
-        $variable_map[$variable] = substr($variable, 9, strlen($variable));
-      }
-
-      update_variables_to_config('honeypot.settings', $variable_map);
-    }
-  }
-}
