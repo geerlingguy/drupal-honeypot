@@ -124,13 +124,13 @@ function honeypot_add_form_protection(&$form, FormStateInterface $form_state, $o
       '#element_validate' => ['_honeypot_honeypot_validate'],
       '#prefix' => '<div class="' . $honeypot_class . '">',
       '#suffix' => '</div>',
-      // Hide honeypot.
-      '#attached' => [
-        'css' => [
-          '.' . $honeypot_class . ' { display: none !important; }' => ['type' => 'inline'],
-        ],
-      ],
     ];
+
+    // Hide honeypot via dynamically-generated CSS.
+    $form[$honeypot_element]['#attached']['html_head'][] = [[
+      '#tag' => 'style',
+      '#value' => '.' . $honeypot_class . ' { display: none !important; }',
+    ], 'ga_scripts'];
   }
 
   // Build the time restriction element (if it's not disabled).
