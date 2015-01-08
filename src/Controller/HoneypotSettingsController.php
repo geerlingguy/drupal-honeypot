@@ -11,6 +11,7 @@ use Drupal\Component\Utility\String;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\NodeType;
+use Drupal\comment\Entity\CommentType;
 
 /**
  * Returns responses for Honeypot module routes.
@@ -144,28 +145,33 @@ class HoneypotSettingsController implements FormInterface {
       }
     }
 
-    // Get node types for node forms and node comment forms.
-    $types = NodeType::loadMultiple();
-    if (!empty($types)) {
-      // Node forms.
-      $form['form_settings']['node_forms'] = ['#markup' => '<h5>' . t('Node Forms') . '</h5>'];
-      foreach ($types as $type) {
-        $id = $type->type . '_node_form';
-        $form['form_settings'][$id] = [
-          '#type' => 'checkbox',
-          '#title' => t('@name node form', ['@name' => $type->name]),
-          '#default_value' => $this->getFormSettingsValue($form_settings, $id),
-        ];
-      }
-
-      // Comment forms.
-      if (\Drupal::moduleHandler()->moduleExists('comment')) {
-        $form['form_settings']['comment_forms'] = ['#markup' => '<h5>' . t('Comment Forms') . '</h5>'];
+    // Node types for node forms.
+    if (\Drupal::moduleHandler()->moduleExists('node')) {
+      $types = NodeType::loadMultiple();
+      if (!empty($types)) {
+        // Node forms.
+        $form['form_settings']['node_forms'] = ['#markup' => '<h5>' . t('Node Forms') . '</h5>'];
         foreach ($types as $type) {
-          $id = 'comment_node_' . $type->type . '_comment_form';
+          $id = $type->type . '_node_form';
           $form['form_settings'][$id] = [
             '#type' => 'checkbox',
-            '#title' => t('@name comment form', ['@name' => $type->name]),
+            '#title' => t('@name node form', ['@name' => $type->name]),
+            '#default_value' => $this->getFormSettingsValue($form_settings, $id),
+          ];
+        }
+      }
+    }
+
+    // Comment types for comment forms.
+    if (\Drupal::moduleHandler()->moduleExists('comment')) {
+      $types = CommentType::loadMultiple();
+      if (!empty($types)) {
+        $form['form_settings']['comment_forms'] = ['#markup' => '<h5>' . t('Comment Forms') . '</h5>'];
+        foreach ($types as $type) {
+          $id = $type->id() . '_comment_form';
+          $form['form_settings'][$id] = [
+            '#type' => 'checkbox',
+            '#title' => t('@name comment form', ['@name' => $type->label()]),
             '#default_value' => $this->getFormSettingsValue($form_settings, $id),
           ];
         }
