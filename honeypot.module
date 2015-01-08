@@ -130,7 +130,7 @@ function honeypot_add_form_protection(&$form, FormStateInterface $form_state, $o
     $form[$honeypot_element]['#attached']['html_head'][] = [[
       '#tag' => 'style',
       '#value' => '.' . $honeypot_class . ' { display: none !important; }',
-    ], 'ga_scripts'];
+    ], 'honeypot_css'];
   }
 
   // Build the time restriction element (if it's not disabled).
