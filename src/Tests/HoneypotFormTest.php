@@ -39,7 +39,7 @@ class HoneypotFormTest extends WebTestBase {
     parent::setUp();
 
     // Set up required Honeypot configuration.
-    $honeypot_config = \Drupal::config('honeypot.settings');
+    $honeypot_config = \Drupal::configFactory()->getEditable('honeypot.settings');
     $honeypot_config->set('element_name', 'url');
     // Disable time_limit protection.
     $honeypot_config->set('time_limit', 0);
@@ -49,7 +49,7 @@ class HoneypotFormTest extends WebTestBase {
     $honeypot_config->save();
 
     // Set up other required configuration.
-    $user_config = \Drupal::config('user.settings');
+    $user_config = \Drupal::configFactory()->getEditable('user.settings');
     $user_config->set('verify_mail', TRUE);
     $user_config->set('register', USER_REGISTER_VISITORS);
     $user_config->save();
@@ -122,7 +122,7 @@ class HoneypotFormTest extends WebTestBase {
 
   public function testProtectRegisterUserTooFast() {
     // Enable time limit for honeypot.
-    $honeypot_config = \Drupal::config('honeypot.settings')->set('time_limit', 5)->save();
+    $honeypot_config = \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 5)->save();
 
     // Set up form and submit it.
     $edit['name'] = $this->randomMachineName();
@@ -140,7 +140,7 @@ class HoneypotFormTest extends WebTestBase {
     $comment = 'Test comment.';
 
     // Disable time limit for honeypot.
-    $honeypot_config = \Drupal::config('honeypot.settings')->set('time_limit', 0)->save();
+    $honeypot_config = \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 0)->save();
 
     // Log in the web user.
     $this->drupalLogin($this->webUser);
@@ -181,7 +181,7 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->webUser);
 
     // Reset the time limit to 5 seconds.
-    $honeypot_config = \Drupal::config('honeypot.settings')->set('time_limit', 5)->save();
+    $honeypot_config = \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 5)->save();
 
     // Set up the form and submit it.
     $edit["title[0][value]"] = 'Test Page';
@@ -206,7 +206,7 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->adminUser);
 
     // Disable 'protect_all_forms'.
-    $honeypot_config = \Drupal::config('honeypot.settings')->set('protect_all_forms', FALSE)->save();
+    $honeypot_config = \Drupal::configFactory()->getEditable('honeypot.settings')->set('protect_all_forms', FALSE)->save();
 
     // Create a Website feedback contact form.
     $feedback_form = ContactForm::create([
@@ -217,7 +217,7 @@ class HoneypotFormTest extends WebTestBase {
       'weight' => 0,
     ]);
     $feedback_form->save();
-    $contact_settings = \Drupal::config('contact.settings');
+    $contact_settings = \Drupal::configFactory()->getEditable('contact.settings');
     $contact_settings->set('default_form', 'feedback')->save();
 
     // Submit the admin form so we can verify the right forms are displayed.

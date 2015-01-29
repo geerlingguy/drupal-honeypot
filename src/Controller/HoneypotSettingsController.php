@@ -8,7 +8,7 @@
 namespace Drupal\honeypot\Controller;
 
 use Drupal\Component\Utility\String;
-use Drupal\Core\Form\FormInterface;
+use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\NodeType;
 use Drupal\comment\Entity\CommentType;
@@ -16,7 +16,7 @@ use Drupal\comment\Entity\CommentType;
 /**
  * Returns responses for Honeypot module routes.
  */
-class HoneypotSettingsController implements FormInterface {
+class HoneypotSettingsController extends ConfigFormBase {
 
   /**
    * Get a value from the retrieved form settings array.
@@ -34,7 +34,14 @@ class HoneypotSettingsController implements FormInterface {
   }
 
   /**
-   * Implements \Drupal\Core\Form\FormInterface::getFormID().
+   * {@inheritdoc}
+   */
+  protected function getEditableConfigNames() {
+    return ['honeypot.settings'];
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function getFormID() {
     return 'honeypot_settings_form';
@@ -55,20 +62,20 @@ class HoneypotSettingsController implements FormInterface {
       '#type' => 'checkbox',
       '#title' => t('Protect all forms with Honeypot'),
       '#description' => t('Enable Honeypot protection for ALL forms on this site (it is best to only enable Honeypot for the forms you need below).'),
-      '#default_value' => \Drupal::config('honeypot.settings')->get('protect_all_forms'),
+      '#default_value' => $this->config('honeypot.settings')->get('protect_all_forms'),
     ];
     $form['configuration']['protect_all_forms']['#description'] .= '<br />' . t('<strong>Page caching will be disabled on any page where a form is present if the Honeypot time limit is not set to 0.</strong>');
     $form['configuration']['log'] = [
       '#type' => 'checkbox',
       '#title' => t('Log blocked form submissions'),
       '#description' => t('Log submissions that are blocked due to Honeypot protection.'),
-      '#default_value' => \Drupal::config('honeypot.settings')->get('log'),
+      '#default_value' => $this->config('honeypot.settings')->get('log'),
     ];
     $form['configuration']['element_name'] = [
       '#type' => 'textfield',
       '#title' => t('Honeypot element name'),
       '#description' => t("The name of the Honeypot form field. It's usually most effective to use a generic name like email, homepage, or name, but this should be changed if it interferes with fields that are already in your forms. Must not contain spaces or special characters."),
-      '#default_value' => \Drupal::config('honeypot.settings')->get('element_name'),
+      '#default_value' => $this->config('honeypot.settings')->get('element_name'),
       '#required' => TRUE,
       '#size' => 30,
     ];
@@ -76,7 +83,7 @@ class HoneypotSettingsController implements FormInterface {
       '#type' => 'textfield',
       '#title' => t('Honeypot time limit'),
       '#description' => t('Minimum time required before form should be considered entered by a human instead of a bot. Set to 0 to disable.'),
-      '#default_value' => \Drupal::config('honeypot.settings')->get('time_limit'),
+      '#default_value' => $this->config('honeypot.settings')->get('time_limit'),
       '#required' => TRUE,
       '#size' => 5,
       '#field_suffix' => t('seconds'),
@@ -84,7 +91,7 @@ class HoneypotSettingsController implements FormInterface {
     $form['configuration']['time_limit']['#description'] .= '<br />' . t('<strong>Page caching will be disabled if there is a form protected by time limit on the page.</strong>');
 
     // Honeypot Enabled forms.
-    $form_settings = \Drupal::config('honeypot.settings')->get('form_settings');
+    $form_settings = $this->config('honeypot.settings')->get('form_settings');
     $form['form_settings'] = [
       '#type' => 'fieldset',
       '#title' => t('Honeypot Enabled Forms'),
@@ -152,10 +159,10 @@ class HoneypotSettingsController implements FormInterface {
         // Node forms.
         $form['form_settings']['node_forms'] = ['#markup' => '<h5>' . t('Node Forms') . '</h5>'];
         foreach ($types as $type) {
-          $id = $type->type . '_node_form';
+          $id = $type->getEntityTypeId() . '_node_form';
           $form['form_settings'][$id] = [
             '#type' => 'checkbox',
-            '#title' => t('@name node form', ['@name' => $type->name]),
+            '#title' => t('@name node form', ['@name' => $type->label()]),
             '#default_value' => $this->getFormSettingsValue($form_settings, $id),
           ];
         }
@@ -226,7 +233,7 @@ class HoneypotSettingsController implements FormInterface {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $config = \Drupal::config('honeypot.settings');
+    $config = $this->config('honeypot.settings');
     $storage = $form_state->getStorage();
 
     // Save all the Honeypot configuration items from $form_state.
