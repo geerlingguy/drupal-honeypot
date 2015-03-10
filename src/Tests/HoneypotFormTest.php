@@ -9,6 +9,7 @@ namespace Drupal\honeypot\Tests;
 
 use Drupal\simpletest\WebTestBase;
 use Drupal\Core\Database\Database;
+use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\contact\Entity\ContactForm;
 
@@ -18,6 +19,9 @@ use Drupal\contact\Entity\ContactForm;
  * @group honeypot
  */
 class HoneypotFormTest extends WebTestBase {
+
+  use CommentTestTrait;
+
   protected $adminUser;
   protected $webUser;
   protected $node;
@@ -58,7 +62,7 @@ class HoneypotFormTest extends WebTestBase {
     if ($this->profile != 'standard') {
       $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
       // Create comment field on article.
-      $this->container->get('comment.manager')->addDefaultField('node', 'article');
+      $this->addDefaultCommentField('node', 'article');
     }
 
     // Set up admin user.
