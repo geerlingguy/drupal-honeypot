@@ -7,7 +7,7 @@
 
 namespace Drupal\honeypot\Controller;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\NodeType;
@@ -146,7 +146,7 @@ class HoneypotSettingsController extends ConfigFormBase {
 
         $form['form_settings'][$form_id] = [
           '#type' => 'checkbox',
-          '#title' => String::checkPlain($bundle['label']),
+          '#title' => SafeMarkup::checkPlain($bundle['label']),
           '#default_value' => $this->getFormSettingsValue($form_settings, $form_id),
         ];
       }
