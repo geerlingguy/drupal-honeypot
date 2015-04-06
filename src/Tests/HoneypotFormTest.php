@@ -226,7 +226,7 @@ class HoneypotFormTest extends WebTestBase {
 
     // Submit the admin form so we can verify the right forms are displayed.
     $this->drupalPostForm('admin/config/content/honeypot', [
-      'form_settings[feedback_contact_message_form]' => TRUE,
+      'form_settings[contact_message_feedback_form]' => TRUE,
     ], t('Save configuration'));
 
     $this->drupalLogin($this->webUser);
