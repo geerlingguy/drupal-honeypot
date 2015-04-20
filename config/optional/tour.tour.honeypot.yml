@@ -1,17 +1,15 @@
 id: honeypot
 module: honeypot
 label: Honeypot
-status: '1'
 langcode: en
-paths:
-  - admin/config/content/honeypot
+routes:
+  - route_name: honeypot.config
 tips:
   honeypot-configuration:
     id: honeypot-configuration
     plugin: text
     label: Honeypot
     weight: '-10'
-    attributes: ''
     body: "Congratulations on installing Honeypot on your site! With just a few clicks, you can have your site well-protected against automated spam bots.\r\n\r\nClick Next to be guided through this configuration page."
     location: top
   protect-all-forms:

@@ -27,11 +27,6 @@ class HoneypotFormTest extends WebTestBase {
   protected $node;
 
   /**
-   * Disabled config schema checking temporarily until all errors are resolved.
-   */
-  protected $strictConfigSchema = FALSE;
-
-  /**
    * Modules to enable.
    *
    * @var array
