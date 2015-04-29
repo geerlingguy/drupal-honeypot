@@ -97,6 +97,7 @@ function honeypot_get_protected_forms() {
       $forms = unserialize($cache->data);
     }
     else {
+      $forms = array();
       // Look up all the honeypot forms in the variables table.
       $result = db_query("SELECT name FROM {variable} WHERE name LIKE 'honeypot_form_%'");
       // Add each form that's enabled to the $forms array.
