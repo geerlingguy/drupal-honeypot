@@ -40,10 +40,12 @@ function honeypot_install() {
   // Create CSS file.
   honeypot_create_css(variable_get('honeypot_element_name', 'url'));
 
-  $t = get_t();
-  drupal_set_message($t("Honeypot installed successfully. Please !link to protect your forms from spam bots.", array(
-    '!link' => l($t('configure Honeypot'), 'admin/config/content/honeypot'),
-  )));
+  if (!drupal_is_cli()) {
+    $t = get_t();
+    drupal_set_message($t("Honeypot installed successfully. Please !link to protect your forms from spam bots.", array(
+      '!link' => l($t('configure Honeypot'), 'admin/config/content/honeypot'),
+    )));
+  }
 }
 
 /**
