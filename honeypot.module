@@ -307,16 +307,20 @@ function honeypot_get_time_limit($form_values = array()) {
 
   // Only calculate time limit if honeypot_time_limit has a value > 0.
   if ($honeypot_time_limit) {
+    $expire_time = variable_get('honeypot_expire', 300);
     // Get value from {honeypot_user} table for authenticated users.
     if ($user->uid) {
-      $number = db_query("SELECT COUNT(*) FROM {honeypot_user} WHERE uid = :uid", array(':uid' => $user->uid))->fetchField();
+      $number = db_query("SELECT COUNT(*) FROM {honeypot_user} WHERE uid = :uid AND timestamp > :time", array(
+        ':uid' => $user->uid,
+        ':time' => time() - $expire_time,
+      ))->fetchField();
     }
     // Get value from {flood} table for anonymous users.
     else {
       $number = db_query("SELECT COUNT(*) FROM {flood} WHERE event = :event AND identifier = :hostname AND timestamp > :time", array(
         ':event' => 'honeypot',
         ':hostname' => ip_address(),
-        ':time' => time() - variable_get('honeypot_expire', 300),
+        ':time' => time() - $expire_time,
       ))->fetchField();
     }
     // Don't add more than 30 days' worth of extra time.
