@@ -47,7 +47,7 @@ function honeypot_cron() {
     ->execute();
 
   // Regenerate the honeypot css file if it does not exist.
-  $honeypot_css = variable_get('file_public_path', conf_path() . '/files') . '/honeypot/honeypot.css';
+  $honeypot_css = honeypot_get_css_file_path();
   if (!file_exists($honeypot_css)) {
     honeypot_create_css(variable_get('honeypot_element_name', 'url'));
   }
@@ -199,7 +199,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
     }
 
     // Get the path to the honeypot css file.
-    $honeypot_css = variable_get('file_public_path', conf_path() . '/files') . '/honeypot/honeypot.css';
+    $honeypot_css = honeypot_get_css_file_path();
 
     // Build the honeypot element.
     $honeypot_class = $honeypot_element . '-textfield';
@@ -394,7 +394,20 @@ function honeypot_log_failure($form_id, $type) {
 }
 
 /**
- * Create CSS file for Honeypot.
+ * Retrieve the location of the Honeypot CSS file.
+ *
+ * @return string
+ *   The path to the honeypot.css file.
+ */
+function honeypot_get_css_file_path() {
+  return variable_get('file_public_path', conf_path() . '/files') . '/honeypot/honeypot.css';
+}
+
+/**
+ * Create CSS file to hide the Honeypot field.
+ *
+ * @param string $element_name
+ *   The honeypot element class name (e.g. 'url').
  */
 function honeypot_create_css($element_name) {
   $path = 'public://honeypot';
