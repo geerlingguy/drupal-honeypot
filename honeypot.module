@@ -45,6 +45,12 @@ function honeypot_cron() {
   db_delete('honeypot_user')
     ->condition('timestamp', time() - variable_get('honeypot_expire', 300), '<')
     ->execute();
+
+  // Regenerate the honeypot css file if it does not exist.
+  $honeypot_css = variable_get('file_public_path', conf_path() . '/files') . '/honeypot/honeypot.css';
+  if (!file_exists($honeypot_css)) {
+    honeypot_create_css(variable_get('honeypot_element_name', 'url'));
+  }
 }
 
 /**
@@ -192,6 +198,9 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
       $attributes = array('autocomplete' => 'off');
     }
 
+    // Get the path to the honeypot css file.
+    $honeypot_css = variable_get('file_public_path', conf_path() . '/files') . '/honeypot/honeypot.css';
+
     // Build the honeypot element.
     $honeypot_class = $honeypot_element . '-textfield';
     $form[$honeypot_element] = array(
@@ -206,7 +215,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
       // Hide honeypot using CSS.
       '#attached' => array(
         'css' => array(
-          'data' => variable_get('file_public_path', conf_path() . '/files') . '/honeypot/honeypot.css',
+          'data' => $honeypot_css,
         ),
       ),
     );
