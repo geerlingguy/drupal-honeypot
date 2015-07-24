@@ -227,7 +227,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
     $form['honeypot_time'] = array(
       '#type' => 'hidden',
       '#title' => t('Timestamp'),
-      '#default_value' => time(),
+      '#default_value' => honeypot_get_signed_timestamp(time()),
       '#element_validate' => array('_honeypot_time_restriction_validate'),
     );
 
@@ -267,18 +267,18 @@ function _honeypot_time_restriction_validate($element, &$form_state) {
   }
 
   // Get the time value.
-  $honeypot_time = $form_state['values']['honeypot_time'];
+  $honeypot_time = honeypot_get_time_from_signed_timestamp($form_state['values']['honeypot_time']);
 
   // Get the honeypot_time_limit.
   $time_limit = honeypot_get_time_limit($form_state['values']);
 
   // Make sure current time - (time_limit + form time value) is greater than 0.
   // If not, throw an error.
-  if (time() < ($honeypot_time + $time_limit)) {
+  if (!$honeypot_time || time() < ($honeypot_time + $time_limit)) {
     _honeypot_log($form_state['values']['form_id'], 'honeypot_time');
     // Get the time limit again, since it increases after first failure.
     $time_limit = honeypot_get_time_limit($form_state['values']);
-    $form_state['values']['honeypot_time'] = time();
+    $form_state['values']['honeypot_time'] = honeypot_get_signed_timestamp(time());
     form_set_error('', t('There was a problem with your form submission. Please wait @limit seconds and try again.', array('@limit' => $time_limit)));
   }
 }
@@ -420,4 +420,43 @@ function honeypot_create_css($element_name) {
     $data = '.' . $element_name . '-textfield { display: none !important; }';
     file_unmanaged_save_data($data, $filename, FILE_EXISTS_REPLACE);
   }
+}
+
+/**
+ * Sign the timestamp $time.
+ *
+ * @param mixed $time
+ *   The timestamp to sign.
+ *
+ * @return string
+ *   A signed timestamp in the form timestamp|HMAC.
+ */
+function honeypot_get_signed_timestamp($time) {
+  return $time . '|' . drupal_hmac_base64($time, drupal_get_private_key());
+}
+
+/**
+ * Validate a signed timestamp.
+ *
+ * @param string $signed_timestamp
+ *   A timestamp concateneted with the signature
+ *
+ * @return int
+ *   The timestamp if the signature is correct, 0 otherwise.
+ */
+function honeypot_get_time_from_signed_timestamp($signed_timestamp) {
+  $honeypot_time = 0;
+
+  list($timestamp, $received_hmac) = explode('|', $signed_timestamp);
+
+  if ($timestamp && $received_hmac) {
+    $calculated_hmac = drupal_hmac_base64($timestamp, drupal_get_private_key());
+    // Prevent leaking timing information, compare second order hmacs.
+    $random_key = drupal_random_bytes(32);
+    if (drupal_hmac_base64($calculated_hmac, $random_key) === drupal_hmac_base64($received_hmac, $random_key)) {
+      $honeypot_time = $timestamp;
+    }
+  }
+
+  return $honeypot_time;
 }
