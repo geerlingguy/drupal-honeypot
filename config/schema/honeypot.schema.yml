@@ -1,5 +1,5 @@
 honeypot.settings:
-  type: mapping
+  type: config_object
   mapping:
     protect_all_forms:
       type: boolean
