@@ -191,7 +191,7 @@ function _honeypot_time_restriction_validate($element, FormStateInterface $form_
 
   // Make sure current time - (time_limit + form time value) is greater than 0.
   // If not, throw an error.
-  if ($honeypot_time || time() < ($honeypot_time + $time_limit)) {
+  if (!$honeypot_time || time() < ($honeypot_time + $time_limit)) {
     _honeypot_log($form_state->getValue('form_id'), 'honeypot_time');
     $time_limit = honeypot_get_time_limit();
     $form_state->setValue('honeypot_time', honeypot_get_signed_timestamp(time()));
