@@ -142,6 +142,9 @@ function honeypot_add_form_protection(&$form, FormStateInterface $form_state, $o
       '#title' => t('Timestamp'),
       '#default_value' => honeypot_get_signed_timestamp(time()),
       '#element_validate' => ['_honeypot_time_restriction_validate'],
+      '#cache' => [
+        'max-age' => 0,
+      ],
     ];
 
     // Disable page caching to make sure timestamp isn't cached.

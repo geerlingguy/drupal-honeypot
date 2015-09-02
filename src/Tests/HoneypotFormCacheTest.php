@@ -8,6 +8,8 @@
 namespace Drupal\honeypot\Tests;
 
 use Drupal\Core\Url;
+use Drupal\comment\Tests\CommentTestTrait;
+use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\contact\Entity\ContactForm;
 use Drupal\simpletest\WebTestBase;
 use Drupal\user\Entity\Role;
@@ -20,13 +22,15 @@ use Drupal\user\RoleInterface;
  */
 class HoneypotFormCacheTest extends WebTestBase {
 
+  use CommentTestTrait;
   /**
    * Modules to enable.
    *
    * @var array
    */
-  public static $modules = array('honeypot', 'contact');
+  public static $modules = array('honeypot', 'node', 'comment', 'contact');
 
+  protected $node;
   /**
    * {@inheritdoc}
    */
@@ -42,6 +46,19 @@ class HoneypotFormCacheTest extends WebTestBase {
     $honeypot_config->set('protect_all_forms', TRUE);
     $honeypot_config->set('log', FALSE);
     $honeypot_config->save();
+
+    // Set up other required configuration.
+    $user_config = \Drupal::configFactory()->getEditable('user.settings');
+    $user_config->set('verify_mail', TRUE);
+    $user_config->set('register', USER_REGISTER_VISITORS);
+    $user_config->save();
+
+    // Create an Article node type.
+    if ($this->profile != 'standard') {
+      $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
+      // Create comment field on article.
+      $this->addDefaultCommentField('node', 'article');
+    }
   }
 
   /**
@@ -79,6 +96,39 @@ class HoneypotFormCacheTest extends WebTestBase {
     // Test on cache header with time limit disabled, cache should hit.
     $this->drupalGet('contact/feedback');
     $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT', 'Page was cached.');
+  }
+
+  /**
+   * Test enabling and disabling of page cache based on time limit settings.
+   */
+  public function testCacheCommentForm() {
+    // Set up example node.
+    $this->node = $this->drupalCreateNode([
+      'type' => 'article',
+      'comment' => CommentItemInterface::OPEN,
+    ]);
+
+    // Give anonymous users permission to post comments.
+    Role::load(RoleInterface::ANONYMOUS_ID)->grantPermission('post comments')->grantPermission('access comments')
+     ->save();
+
+    // Prime the cache.
+    $this->drupalGet('node/' . $this->node->id());
+
+    // Test on cache header with time limit enabled, cache should miss.
+    $this->drupalGet('node/' . $this->node->id());
+    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), '', 'Page was not cached.');
+
+    // Disable time limit.
+    $honeypot_config = \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 0)->save();
+
+    // Prime the cache.
+    $this->drupalGet('node/' . $this->node->id());
+
+    // Test on cache header with time limit disabled, cache should hit.
+    $this->drupalGet('node/' . $this->node->id());
+    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT', 'Page was cached.');
+
   }
 
 }
