@@ -322,6 +322,11 @@ function honeypot_get_signed_timestamp($time) {
 function honeypot_get_time_from_signed_timestamp($signed_timestamp) {
   $honeypot_time = 0;
 
+  // Fail fast if timestamp was forged.
+  if (strpos($signed_timestamp, '|') === FALSE) {
+    return $honeypot_time;
+  }
+
   list($timestamp, $received_hmac) = explode('|', $signed_timestamp);
 
   if ($timestamp && $received_hmac) {
