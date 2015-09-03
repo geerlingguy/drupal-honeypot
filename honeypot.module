@@ -449,7 +449,7 @@ function honeypot_get_time_from_signed_timestamp($signed_timestamp) {
 
   // Fail fast if timestamp was forged or saved with an older Honeypot version.
   if (strpos($signed_timestamp, '|') === FALSE) {
-    return 0;
+    return $honeypot_time;
   }
 
   list($timestamp, $received_hmac) = explode('|', $signed_timestamp);
