@@ -175,7 +175,7 @@ class HoneypotSettingsController extends ConfigFormBase {
       if (!empty($types)) {
         $form['form_settings']['comment_forms'] = ['#markup' => '<h5>' . t('Comment Forms') . '</h5>'];
         foreach ($types as $type) {
-          $id = $type->id() . '_comment_form';
+          $id = 'comment_' . $type->id() . '_form';
           $form['form_settings'][$id] = [
             '#type' => 'checkbox',
             '#title' => t('@name comment form', ['@name' => $type->label()]),
