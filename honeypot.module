@@ -307,7 +307,7 @@ function honeypot_log_failure($form_id, $type) {
  */
 function honeypot_get_signed_timestamp($time) {
   $private_key = Drupal::service('private_key')->get();
-  return $time . '|' . Crypt::hashBase64($time, $private_key);
+  return $time . '|' . Crypt::hmacBase64($time, $private_key);
 }
 
 /**
@@ -331,10 +331,10 @@ function honeypot_get_time_from_signed_timestamp($signed_timestamp) {
 
   if ($timestamp && $received_hmac) {
     $private_key = Drupal::service('private_key')->get();
-    $calculated_hmac = Crypt::hashBase64($timestamp, $private_key);
+    $calculated_hmac = Crypt::hmacBase64($timestamp, $private_key);
     // Prevent leaking timing information, compare second order hmacs.
     $random_key = Crypt::randomBytes(32);
-    if (Crypt::hashBase64($calculated_hmac, $random_key) === Crypt::hashBase64($received_hmac, $random_key)) {
+    if (Crypt::hmacBase64($calculated_hmac, $random_key) === Crypt::hmacBase64($received_hmac, $random_key)) {
       $honeypot_time = $timestamp;
     }
   }
