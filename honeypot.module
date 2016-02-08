@@ -9,7 +9,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\Crypt;
 
 /**
- * Implements of hook_cron().
+ * Implements hook_cron().
  */
 function honeypot_cron() {
   // Delete {honeypot_user} entries older than the value of honeypot_expire.
