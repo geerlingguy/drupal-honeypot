@@ -6,7 +6,7 @@
  */
 
 /**
- * Implements of hook_schema().
+ * Implements hook_schema().
  */
 function honeypot_schema() {
   $schema['honeypot_user'] = array(

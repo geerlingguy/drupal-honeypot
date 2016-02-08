@@ -38,7 +38,7 @@ function honeypot_permission() {
 }
 
 /**
- * Implements of hook_cron().
+ * Implements hook_cron().
  */
 function honeypot_cron() {
   // Delete {honeypot_user} entries older than the value of honeypot_expire.
@@ -111,7 +111,7 @@ function honeypot_trigger_info() {
 }
 
 /**
- * Implements hook_rules_event_info()
+ * Implements hook_rules_event_info().
  */
 function honeypot_rules_event_info() {
   return array(
