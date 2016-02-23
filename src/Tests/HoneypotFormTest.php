@@ -121,7 +121,7 @@ class HoneypotFormTest extends WebTestBase {
 
   public function testProtectRegisterUserTooFast() {
     // Enable time limit for honeypot.
-    $honeypot_config = \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 5)->save();
+    \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 5)->save();
 
     // Set up form and submit it.
     $edit['name'] = $this->randomMachineName();

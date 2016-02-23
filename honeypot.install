@@ -20,6 +20,12 @@ function honeypot_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ],
+      'hostname' => [
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'Hostname of user that that triggered honeypot.',
+      ],
       'timestamp' => [
         'description' => 'Date/time when the form submission failed, as Unix timestamp.',
         'type' => 'int',
@@ -53,4 +59,14 @@ function honeypot_install() {
 function honeypot_uninstall() {
   // Clear the bootstrap cache.
   \Drupal::cache('bootstrap')->deleteAll();
+}
+
+/**
+ * Adds the 'hostname' column to the {honeypot_user} table.
+ */
+function honeypot_update_8100() {
+  $schema = honeypot_schema();
+  $spec = $schema['honeypot_user']['fields']['hostname'];
+  $spec['initial'] = '';
+  \Drupal::database()->schema()->addField('honeypot_user', 'hostname', $spec);
 }

@@ -236,22 +236,21 @@ function honeypot_get_time_limit($form_values = array()) {
   // Only calculate time limit if honeypot_time_limit has a value > 0.
   if ($honeypot_time_limit) {
     $expire_time = \Drupal::config('honeypot.settings')->get('expire');
-    // Get value from {honeypot_user} table for authenticated users.
+
+    // Query the {honeypot_user} table to determine the number of failed
+    // submissions for the current user.
     $uid = $account->id();
-    if ($uid) {
-      $number = db_query("SELECT COUNT(*) FROM {honeypot_user} WHERE uid = :uid AND timestamp > :time", [
-        ':uid' => $uid,
-        ':time' => time() - $expire_time,
-      ])->fetchField();
+    $query = db_select('honeypot_user', 'hu')
+      ->condition('uid', $uid)
+      ->condition('timestamp', time() - $expire_time, '>');
+
+    // For anonymous users, take the hostname into account.
+    if ($uid === 0) {
+      $hostname = \Drupal::request()->getClientIp();
+      $query->condition('hostname', $hostname);
     }
-    // Get value from {flood} table for anonymous users.
-    else {
-      $number = db_query("SELECT COUNT(*) FROM {flood} WHERE event = :event AND identifier = :hostname AND timestamp > :time", [
-        ':event' => 'honeypot.event',
-        ':hostname' => Drupal::request()->getClientIp(),
-        ':time' => time() - $expire_time,
-      ])->fetchField();
-    }
+    $number = $query->countQuery()->execute()->fetchField();
+
     // Don't add more than 30 days' worth of extra time.
     $honeypot_time_limit = (int) min($honeypot_time_limit + exp($number) - 1, 2592000);
     // TODO - Only accepts two args.
@@ -264,7 +263,7 @@ function honeypot_get_time_limit($form_values = array()) {
 }
 
 /**
- * Log the failed submision with timestamp.
+ * Log the failed submission with timestamp and hostname.
  *
  * @param string $form_id
  *   Form ID for the rejected form submission.
@@ -277,19 +276,14 @@ function honeypot_log_failure($form_id, $type) {
   $account = \Drupal::currentUser();
   $uid = $account->id();
 
-  // Log failed submissions for authenticated users.
-  if ($uid) {
-    db_insert('honeypot_user')
-      ->fields([
-        'uid' => $uid,
-        'timestamp' => time(),
-      ])
-      ->execute();
-  }
-  // Register flood event for anonymous users.
-  else {
-    Drupal::flood()->register('honeypot.event');
-  }
+  // Log failed submissions.
+  \Drupal::database()->insert('honeypot_user')
+    ->fields([
+      'uid' => $uid,
+      'hostname' => Drupal::request()->getClientIp(),
+      'timestamp' => time(),
+    ])
+    ->execute();
 
   // Allow other modules to react to honeypot rejections.
   // TODO - Only accepts two args.
