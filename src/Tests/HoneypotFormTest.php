@@ -180,7 +180,7 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->webUser);
 
     // Reset the time limit to 5 seconds.
-    $honeypot_config = \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 5)->save();
+    \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 5)->save();
 
     // Set up the form and submit it.
     $edit["title[0][value]"] = 'Test Page';
