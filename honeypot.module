@@ -317,21 +317,18 @@ function honeypot_get_time_limit($form_values = array()) {
   // Only calculate time limit if honeypot_time_limit has a value > 0.
   if ($honeypot_time_limit) {
     $expire_time = variable_get('honeypot_expire', 300);
-    // Get value from {honeypot_user} table for authenticated users.
-    if ($user->uid) {
-      $number = db_query("SELECT COUNT(*) FROM {honeypot_user} WHERE uid = :uid AND timestamp > :time", array(
-        ':uid' => $user->uid,
-        ':time' => time() - $expire_time,
-      ))->fetchField();
+    // Query the {honeypot_user} table to determine the number of failed
+    // submissions for the current user.
+    $query = db_select('honeypot_user', 'hs')
+      ->condition('uid', $user->uid)
+      ->condition('timestamp', time() - $expire_time, '>');
+
+    // For anonymous users, take the hostname into account.
+    if ($user->uid === 0) {
+      $query->condition('hostname', ip_address());
     }
-    // Get value from {flood} table for anonymous users.
-    else {
-      $number = db_query("SELECT COUNT(*) FROM {flood} WHERE event = :event AND identifier = :hostname AND timestamp > :time", array(
-        ':event' => 'honeypot',
-        ':hostname' => ip_address(),
-        ':time' => time() - $expire_time,
-      ))->fetchField();
-    }
+    $number = $query->countQuery()->execute()->fetchField();
+
     // Don't add more than 30 days' worth of extra time.
     $honeypot_time_limit = (int) min($honeypot_time_limit + exp($number) - 1, 2592000);
     $additions = module_invoke_all('honeypot_time_limit', $honeypot_time_limit, $form_values, $number);
@@ -339,11 +336,12 @@ function honeypot_get_time_limit($form_values = array()) {
       $honeypot_time_limit += array_sum($additions);
     }
   }
+
   return $honeypot_time_limit;
 }
 
 /**
- * Log the failed submision with timestamp.
+ * Log the failed submision with timestamp and hostname.
  *
  * @param string $form_id
  *   Form ID for the rejected form submission.
@@ -355,19 +353,13 @@ function honeypot_get_time_limit($form_values = array()) {
 function honeypot_log_failure($form_id, $type) {
   global $user;
 
-  // Log failed submissions for authenticated users.
-  if ($user->uid) {
-    db_insert('honeypot_user')
-      ->fields(array(
-        'uid' => $user->uid,
-        'timestamp' => time(),
-      ))
-      ->execute();
-  }
-  // Register flood event for anonymous users.
-  else {
-    flood_register_event('honeypot');
-  }
+  db_insert('honeypot_user')
+    ->fields(array(
+      'uid' => $user->uid,
+      'hostname' => ip_address(),
+      'timestamp' => time(),
+    ))
+    ->execute();
 
   // Allow other modules to react to honeypot rejections.
   module_invoke_all('honeypot_reject', $form_id, $user->uid, $type);
