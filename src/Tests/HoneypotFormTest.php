@@ -120,7 +120,17 @@ class HoneypotFormTest extends WebTestBase {
   }
 
   public function testProtectRegisterUserTooFast() {
-    // Enable time limit for honeypot.
+    \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 1)->save();
+
+    // First attempt a submission that does not trigger honeypot.
+    $edit['name'] = $this->randomMachineName();
+    $edit['mail'] = $edit['name'] . '@example.com';
+    $this->drupalGet('user/register');
+    sleep(2);
+    $this->drupalPostForm(NULL, $edit, t('Create new account'));
+    $this->assertNoText(t('There was a problem with your form submission.'));
+
+    // Set the time limit a bit higher so we can trigger honeypot.
     \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 5)->save();
 
     // Set up form and submit it.
@@ -180,7 +190,7 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->webUser);
 
     // Reset the time limit to 5 seconds.
-    \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 5)->save();
+    $honeypot_config = \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 5)->save();
 
     // Set up the form and submit it.
     $edit["title[0][value]"] = 'Test Page';

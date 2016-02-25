@@ -209,6 +209,20 @@ class HoneypotSettingsController extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    // Make sure the time limit is a positive integer or 0.
+    $time_limit = $form_state->getValue('time_limit');
+    if ((is_numeric($time_limit) && $time_limit > 0) || $time_limit === '0') {
+      if (ctype_digit($time_limit)) {
+        // Good to go.
+      }
+      else {
+        $form_state->setErrorByName('time_limit', t("The time limit must be a positive integer or 0."));
+      }
+    }
+    else {
+      $form_state->setErrorByName('time_limit', t("The time limit must be a positive integer or 0."));
+    }
+
     // Make sure Honeypot element name only contains A-Z, 0-9.
     if (!preg_match("/^[-_a-zA-Z0-9]+$/", $form_state->getValue('element_name'))) {
       $form_state->setErrorByName('element_name', t("The element name cannot contain spaces or other special characters."));

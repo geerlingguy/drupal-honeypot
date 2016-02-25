@@ -138,8 +138,9 @@ function honeypot_add_form_protection(&$form, FormStateInterface $form_state, $o
   if (in_array('time_restriction', $options) && \Drupal::config('honeypot.settings')->get('time_limit') != 0) {
     // Set the current time in a hidden value to be checked later.
     $form['honeypot_time'] = [
-      '#type' => 'value',
+      '#type' => 'hidden',
       '#title' => t('Timestamp'),
+      '#default_value' => honeypot_get_signed_timestamp(time()),
       '#element_validate' => ['_honeypot_time_restriction_validate'],
       '#cache' => [
         'max-age' => 0,
@@ -186,7 +187,7 @@ function _honeypot_time_restriction_validate($element, FormStateInterface $form_
   }
 
   // Get the time value.
-  $honeypot_time = $form_state->getValue('honeypot_time');
+  $honeypot_time = honeypot_get_time_from_signed_timestamp($form_state->getValue('honeypot_time'));
 
   // Get the honeypot_time_limit.
   $time_limit = honeypot_get_time_limit($form_state->getValues());
@@ -196,7 +197,7 @@ function _honeypot_time_restriction_validate($element, FormStateInterface $form_
   if (!$honeypot_time || time() < ($honeypot_time + $time_limit)) {
     _honeypot_log($form_state->getValue('form_id'), 'honeypot_time');
     $time_limit = honeypot_get_time_limit();
-    $form_state->setValue('honeypot_time', time());
+    $form_state->setValue('honeypot_time', honeypot_get_signed_timestamp(time()));
     $form_state->setErrorByName('', t('There was a problem with your form submission. Please wait @limit seconds and try again.', ['@limit' => $time_limit]));
   }
 }
@@ -287,4 +288,50 @@ function honeypot_log_failure($form_id, $type) {
   // Allow other modules to react to honeypot rejections.
   // TODO - Only accepts two args.
   \Drupal::moduleHandler()->invokeAll('honeypot_reject', [$form_id, $uid, $type]);
+}
+
+/**
+ * Sign the timestamp $time.
+ *
+ * @param mixed $time
+ *   The timestamp to sign.
+ *
+ * @return string
+ *   A signed timestamp in the form timestamp|HMAC.
+ */
+function honeypot_get_signed_timestamp($time) {
+  $private_key = Drupal::service('private_key')->get();
+  return $time . '|' . Crypt::hmacBase64($time, $private_key);
+}
+
+/**
+ * Validate a signed timestamp.
+ *
+ * @param string $signed_timestamp
+ *   A timestamp concateneted with the signature
+ *
+ * @return int
+ *   The timestamp if the signature is correct, 0 otherwise.
+ */
+function honeypot_get_time_from_signed_timestamp($signed_timestamp) {
+  $honeypot_time = 0;
+
+  // Fail fast if timestamp was forged.
+  if (strpos($signed_timestamp, '|') === FALSE) {
+    return $honeypot_time;
+  }
+
+  list($timestamp, $received_hmac) = explode('|', $signed_timestamp);
+
+  if ($timestamp && $received_hmac) {
+    $private_key = Drupal::service('private_key')->get();
+    $calculated_hmac = Crypt::hmacBase64($timestamp, $private_key);
+    // Prevent leaking timing information, compare second order hmacs.
+    $random_key = Crypt::randomBytes(32);
+    if (Crypt::hmacBase64($calculated_hmac, $random_key) === Crypt::hmacBase64($received_hmac, $random_key)) {
+      $honeypot_time = $timestamp;
+    }
+  }
+
+  return $honeypot_time;
 }
