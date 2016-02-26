@@ -43,7 +43,7 @@ function honeypot_permission() {
 function honeypot_cron() {
   // Delete {honeypot_user} entries older than the value of honeypot_expire.
   db_delete('honeypot_user')
-    ->condition('timestamp', time() - variable_get('honeypot_expire', 300), '<')
+    ->condition('timestamp', REQUEST_TIME - variable_get('honeypot_expire', 300), '<')
     ->execute();
 
   // Regenerate the honeypot css file if it does not exist.
@@ -227,7 +227,7 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
     $form['honeypot_time'] = array(
       '#type' => 'hidden',
       '#title' => t('Timestamp'),
-      '#default_value' => honeypot_get_signed_timestamp(time()),
+      '#default_value' => honeypot_get_signed_timestamp(REQUEST_TIME),
       '#element_validate' => array('_honeypot_time_restriction_validate'),
     );
 
@@ -274,11 +274,11 @@ function _honeypot_time_restriction_validate($element, &$form_state) {
 
   // Make sure current time - (time_limit + form time value) is greater than 0.
   // If not, throw an error.
-  if (!$honeypot_time || time() < ($honeypot_time + $time_limit)) {
+  if (!$honeypot_time || REQUEST_TIME < ($honeypot_time + $time_limit)) {
     _honeypot_log($form_state['values']['form_id'], 'honeypot_time');
     // Get the time limit again, since it increases after first failure.
     $time_limit = honeypot_get_time_limit($form_state['values']);
-    $form_state['values']['honeypot_time'] = honeypot_get_signed_timestamp(time());
+    $form_state['values']['honeypot_time'] = honeypot_get_signed_timestamp(REQUEST_TIME);
     form_set_error('', t('There was a problem with your form submission. Please wait @limit seconds and try again.', array('@limit' => $time_limit)));
   }
 }
@@ -321,7 +321,7 @@ function honeypot_get_time_limit($form_values = array()) {
     // submissions for the current user.
     $query = db_select('honeypot_user', 'hs')
       ->condition('uid', $user->uid)
-      ->condition('timestamp', time() - $expire_time, '>');
+      ->condition('timestamp', REQUEST_TIME - $expire_time, '>');
 
     // For anonymous users, take the hostname into account.
     if ($user->uid === 0) {
@@ -357,7 +357,7 @@ function honeypot_log_failure($form_id, $type) {
     ->fields(array(
       'uid' => $user->uid,
       'hostname' => ip_address(),
-      'timestamp' => time(),
+      'timestamp' => REQUEST_TIME,
     ))
     ->execute();
 
