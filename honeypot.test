@@ -6,7 +6,7 @@
  */
 
 /**
- * Test the functionality of the Honeypot module for an admin user.
+ * Test the functionality of the Honeypot module for forms.
  */
 class HoneypotFormTestCase extends DrupalWebTestCase {
   protected $adminUser;
@@ -168,6 +168,91 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     $edit["title"] = 'Test Page';
     $this->drupalPost('node/add/article', $edit, t('Preview'));
     $this->assertNoText(t('There was a problem with your form submission.'), 'Honeypot not blocking node form previews.');
+  }
+}
+
+/**
+ * Test the functionality of the Honeypot module for an admin user.
+ */
+class HoneypotAdminFormTestCase extends DrupalWebTestCase {
+  protected $adminUser;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Honeypot admin form',
+      'description' => 'Ensure the Honeypot admin form functions properly.',
+      'group' => 'Form API',
+    );
+  }
+
+  public function setUp() {
+    // Enable modules required for this test.
+    parent::setUp(array('honeypot'));
+
+    // Set up admin user.
+    $this->adminUser = $this->drupalCreateUser(array(
+      'administer honeypot',
+      'bypass honeypot protection',
+    ));
+  }
+
+  /**
+   * Test a valid element name.
+   */
+  public function testElementNameUpdateSuccess() {
+    // Log in the web user.
+    $this->drupalLogin($this->adminUser);
+
+    // Set up form and submit it.
+    $edit['honeypot_element_name'] = "test";
+    $this->drupalPost('admin/config/content/honeypot', $edit, t('Save configuration'));
+
+    // Form should have been submitted successfully.
+    $this->assertText(t('The configuration options have been saved.'), 'Honeypot element name assertion works for valid names.');
+
+    // Set up form and submit it.
+    $edit['honeypot_element_name'] = "test-1";
+    $this->drupalPost('admin/config/content/honeypot', $edit, t('Save configuration'));
+
+    // Form should have been submitted successfully.
+    $this->assertText(t('The configuration options have been saved.'), 'Honeypot element name assertion works for valid names with dashes and numbers.');
+  }
+
+  /**
+   * Test an invalid element name (invalid first character).
+   */
+  public function testElementNameUpdateFirstCharacterFail() {
+    // Log in the admin user.
+    $this->drupalLogin($this->adminUser);
+
+    // Set up form and submit it.
+    $edit['honeypot_element_name'] = "1test";
+    $this->drupalPost('admin/config/content/honeypot', $edit, t('Save configuration'));
+
+    // Form submission should fail.
+    $this->assertText(t('The element name must start with a letter.'), 'Honeypot element name assertion works for invalid names.');
+  }
+
+  /**
+   * Test an invalid element name (invalid character in name).
+   */
+  public function testElementNameUpdateInvalidCharacterFail() {
+    // Log in the admin user.
+    $this->drupalLogin($this->adminUser);
+
+    // Set up form and submit it.
+    $edit['honeypot_element_name'] = "special-character-&";
+    $this->drupalPost('admin/config/content/honeypot', $edit, t('Save configuration'));
+
+    // Form submission should fail.
+    $this->assertText(t('The element name cannot contain spaces or other special characters.'), 'Honeypot element name assertion works for invalid names with special characters.');
+
+    // Set up form and submit it.
+    $edit['honeypot_element_name'] = "space in name";
+    $this->drupalPost('admin/config/content/honeypot', $edit, t('Save configuration'));
+
+    // Form submission should fail.
+    $this->assertText(t('The element name cannot contain spaces or other special characters.'), 'Honeypot element name assertion works for invalid names with spaces.');
   }
 }
 
