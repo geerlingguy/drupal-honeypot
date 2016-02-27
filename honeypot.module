@@ -46,10 +46,11 @@ function honeypot_cron() {
     ->condition('timestamp', REQUEST_TIME - variable_get('honeypot_expire', 300), '<')
     ->execute();
 
-  // Regenerate the honeypot css file if it does not exist.
+  // Regenerate the honeypot css file if it does not exist or is outdated.
   $honeypot_css = honeypot_get_css_file_path();
-  if (!file_exists($honeypot_css)) {
-    honeypot_create_css(variable_get('honeypot_element_name', 'url'));
+  $honeypot_element_name = variable_get('honeypot_element_name', 'url');
+  if (!file_exists($honeypot_css) || !honeypot_check_css($honeypot_element_name)) {
+    honeypot_create_css($honeypot_element_name);
   }
 }
 
@@ -412,6 +413,30 @@ function honeypot_create_css($element_name) {
     $data = '.' . $element_name . '-textfield { display: none !important; }';
     file_unmanaged_save_data($data, $filename, FILE_EXISTS_REPLACE);
   }
+}
+
+/**
+ * Check Honeypot's CSS file for a given Honeypot element name.
+ *
+ * This function assumes the Honeypot CSS file already exists.
+ *
+ * @param string $element_name
+ *   The honeypot element class name (e.g. 'url').
+ *
+ * @return bool
+ *   TRUE if CSS is has element class name, FALSE if not.
+ */
+function honeypot_check_css($element_name) {
+  $path = honeypot_get_css_file_path();
+  $handle = fopen($path, 'r');
+  $contents = fread($handle, filesize($path));
+  fclose($handle);
+
+  if (strpos($contents, $element_name) === 1) {
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 /**

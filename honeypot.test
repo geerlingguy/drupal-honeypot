@@ -296,7 +296,7 @@ class HoneypotCssTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Test cron-based CSS file regeneration
+   * Test cron-based CSS file regeneration.
    */
   public function testHoneypotCssRegenerationOnCron() {
     $honeypot_css = honeypot_get_css_file_path();
@@ -312,6 +312,36 @@ class HoneypotCssTestCase extends DrupalWebTestCase {
 
     // Make sure the Honeypot CSS file exists.
     $this->assertTrue(file_exists($honeypot_css));
+  }
+
+  /**
+   * Test cron-based CSS file update.
+   */
+  public function testHoneypotCssUpdateOnCron() {
+    $honeypot_css = honeypot_get_css_file_path();
+    $original_element_name = variable_get('honeypot_element_name', 'url');
+
+    // Update the honeypot element name.
+    variable_set('honeypot_element_name', 'test');
+
+    // Make sure the Honeypot CSS file still exists.
+    $this->assertTrue(file_exists($honeypot_css));
+
+    // Run cron.
+    honeypot_cron();
+
+    // Make sure the Honeypot CSS file was updated with the new element name.
+    $handle = fopen($honeypot_css, 'r');
+    $contents = fread($handle, filesize($honeypot_css));
+    fclose($handle);
+    $updated_element_name_in_css = (strpos($contents, 'test') === 1);
+    $this->assertTrue($updated_element_name_in_css);
+
+    // For debug.
+    $this->verbose($contents);
+
+    // Revert the honeypot element name back to the original.
+    variable_set('honeypot_element_name', $original_element_name);
   }
 }
 
