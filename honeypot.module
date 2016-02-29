@@ -180,6 +180,11 @@ function _honeypot_honeypot_validate($element, FormStateInterface $form_state) {
  * Validate honeypot's time restriction field.
  */
 function _honeypot_time_restriction_validate($element, FormStateInterface $form_state) {
+  if ($form_state->isProgrammed()) {
+    // Don't do anything if the form was submitted programmatically.
+    return;
+  }
+
   $triggering_element = $form_state->getTriggeringElement();
   // Don't do anything if the triggering element is a preview button.
   if ($triggering_element['#value'] == t('Preview')) {

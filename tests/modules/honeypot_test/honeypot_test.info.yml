@@ -1,0 +1,6 @@
+name: honeypot_test
+type: module
+description: Support module for Honeypot internal testing purposes.
+core: 8.x
+package: Testing
+hidden: true
