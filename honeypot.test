@@ -23,7 +23,7 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
 
   public function setUp() {
     // Enable modules required for this test.
-    parent::setUp(array('honeypot', 'comment'));
+    parent::setUp(array('honeypot', 'comment', 'honeypot_test'));
 
     // Set up required Honeypot variables.
     variable_set('honeypot_element_name', 'url');
@@ -168,6 +168,29 @@ class HoneypotFormTestCase extends DrupalWebTestCase {
     $edit["title"] = 'Test Page';
     $this->drupalPost('node/add/article', $edit, t('Preview'));
     $this->assertNoText(t('There was a problem with your form submission.'), 'Honeypot not blocking node form previews.');
+  }
+
+  /**
+   * Test programmatic submission.
+   */
+  public function testProgrammaticSubmission() {
+    // Enable time limit protection.
+    variable_set('honeypot_time_limit', 5);
+
+    // Create a user for which we are going to trigger the password reset.
+    $edit = array();
+    $edit['name']   = 'robo-user';
+    $edit['mail']   = $edit['name'] . '@example.com';
+    $edit['status'] = 1;
+    user_save(drupal_anonymous_user(), $edit);
+
+    // Trigger the password reset through a programmatic submission.
+    $this->drupalGet('honeypot_test/submit_form');
+
+    // Verify that the submission did not return any validation errors.
+    $form_errors = drupal_json_decode($this->content);
+    $this->assertNoRaw('There was a problem with your form submission. Please wait 6 seconds and try again.');
+    $this->assertFalse($form_errors, 'The were no validation errors when submitting the form.');
   }
 }
 

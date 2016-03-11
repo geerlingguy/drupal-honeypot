@@ -1,0 +1,5 @@
+name = honepot_test
+description = Support module for Honeypot internal testing purposes.
+core = 7.x
+package = Testing
+hidden = true
