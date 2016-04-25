@@ -159,7 +159,7 @@ class HoneypotSettingsController extends ConfigFormBase {
         // Node forms.
         $form['form_settings']['node_forms'] = ['#markup' => '<h5>' . t('Node Forms') . '</h5>'];
         foreach ($types as $type) {
-          $id = $type->getEntityTypeId() . '_node_form';
+          $id = 'node_' . $type->get('type') . '_form';
           $form['form_settings'][$id] = [
             '#type' => 'checkbox',
             '#title' => t('@name node form', ['@name' => $type->label()]),
