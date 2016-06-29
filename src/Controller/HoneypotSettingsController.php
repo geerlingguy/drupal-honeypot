@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\honeypot\Controller\HoneypotSettingsController.
- */
-
 namespace Drupal\honeypot\Controller;
 
 use Drupal\Component\Utility\SafeMarkup;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\honeypot\Tests\HoneypotAdminFormTest.
- */
-
 namespace Drupal\honeypot\Tests;
 
 use Drupal\simpletest\WebTestBase;

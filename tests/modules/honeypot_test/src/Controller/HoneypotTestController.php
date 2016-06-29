@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\honeypot_test\Controller\HoneypotTestController.
- */
-
 namespace Drupal\honeypot_test\Controller;
 use Drupal\Core\Form\FormState;
 use Symfony\Component\HttpFoundation\JsonResponse;

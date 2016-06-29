@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\honeypot\Tests\HoneypotFormCacheTest.
- */
-
 namespace Drupal\honeypot\Tests;
 
 use Drupal\Core\Url;
