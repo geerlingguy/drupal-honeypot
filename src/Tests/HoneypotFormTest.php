@@ -3,7 +3,6 @@
 namespace Drupal\honeypot\Tests;
 
 use Drupal\simpletest\WebTestBase;
-use Drupal\Core\Database\Database;
 use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\contact\Entity\ContactForm;
@@ -28,6 +27,9 @@ class HoneypotFormTest extends WebTestBase {
    */
   public static $modules = ['honeypot', 'node', 'comment', 'contact'];
 
+  /**
+   * Setup before test.
+   */
   public function setUp() {
     // Enable modules required for this test.
     parent::setUp();
@@ -103,6 +105,9 @@ class HoneypotFormTest extends WebTestBase {
     $this->assertText(t('A welcome message with further instructions has been sent to your email address.'), 'User registered successfully.');
   }
 
+  /**
+   * Test for user register honeypot filled.
+   */
   public function testProtectUserRegisterHoneypotFilled() {
     // Set up form and submit it.
     $edit['name'] = $this->randomMachineName();
@@ -233,4 +238,5 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalGet('contact/feedback');
     $this->assertField('url', 'Honeypot field is added to Contact form.');
   }
+
 }

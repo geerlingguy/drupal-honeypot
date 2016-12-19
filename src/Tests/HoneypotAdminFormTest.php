@@ -3,7 +3,6 @@
 namespace Drupal\honeypot\Tests;
 
 use Drupal\simpletest\WebTestBase;
-use Drupal\Core\Database\Database;
 
 /**
  * Test Honeypot spam protection admin form functionality.
@@ -21,6 +20,9 @@ class HoneypotAdminFormTest extends WebTestBase {
    */
   public static $modules = ['honeypot'];
 
+  /**
+   * Setup before test.
+   */
   public function setUp() {
     // Enable modules required for this test.
     parent::setUp();
@@ -90,4 +92,5 @@ class HoneypotAdminFormTest extends WebTestBase {
     // Form submission should fail.
     $this->assertText(t('The element name cannot contain spaces or other special characters.'), 'Honeypot element name assertion works for invalid names with spaces.');
   }
+
 }

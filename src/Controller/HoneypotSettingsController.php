@@ -49,35 +49,35 @@ class HoneypotSettingsController extends ConfigFormBase {
     // Honeypot Configuration.
     $form['configuration'] = [
       '#type' => 'fieldset',
-      '#title' => t('Honeypot Configuration'),
+      '#title' => $this->t('Honeypot Configuration'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
     ];
     $form['configuration']['protect_all_forms'] = [
       '#type' => 'checkbox',
-      '#title' => t('Protect all forms with Honeypot'),
-      '#description' => t('Enable Honeypot protection for ALL forms on this site (it is best to only enable Honeypot for the forms you need below).'),
+      '#title' => $this->t('Protect all forms with Honeypot'),
+      '#description' => $this->t('Enable Honeypot protection for ALL forms on this site (it is best to only enable Honeypot for the forms you need below).'),
       '#default_value' => $this->config('honeypot.settings')->get('protect_all_forms'),
     ];
     $form['configuration']['protect_all_forms']['#description'] .= '<br />' . t('<strong>Page caching will be disabled on any page where a form is present if the Honeypot time limit is not set to 0.</strong>');
     $form['configuration']['log'] = [
       '#type' => 'checkbox',
-      '#title' => t('Log blocked form submissions'),
-      '#description' => t('Log submissions that are blocked due to Honeypot protection.'),
+      '#title' => $this->t('Log blocked form submissions'),
+      '#description' => $this->t('Log submissions that are blocked due to Honeypot protection.'),
       '#default_value' => $this->config('honeypot.settings')->get('log'),
     ];
     $form['configuration']['element_name'] = [
       '#type' => 'textfield',
-      '#title' => t('Honeypot element name'),
-      '#description' => t("The name of the Honeypot form field. It's usually most effective to use a generic name like email, homepage, or link, but this should be changed if it interferes with fields that are already in your forms. Must not contain spaces or special characters."),
+      '#title' => $this->t('Honeypot element name'),
+      '#description' => $this->t("The name of the Honeypot form field. It's usually most effective to use a generic name like email, homepage, or link, but this should be changed if it interferes with fields that are already in your forms. Must not contain spaces or special characters."),
       '#default_value' => $this->config('honeypot.settings')->get('element_name'),
       '#required' => TRUE,
       '#size' => 30,
     ];
     $form['configuration']['time_limit'] = [
       '#type' => 'textfield',
-      '#title' => t('Honeypot time limit'),
-      '#description' => t('Minimum time required before form should be considered entered by a human instead of a bot. Set to 0 to disable.'),
+      '#title' => $this->t('Honeypot time limit'),
+      '#description' => $this->t('Minimum time required before form should be considered entered by a human instead of a bot. Set to 0 to disable.'),
       '#default_value' => $this->config('honeypot.settings')->get('time_limit'),
       '#required' => TRUE,
       '#size' => 5,
@@ -89,8 +89,8 @@ class HoneypotSettingsController extends ConfigFormBase {
     $form_settings = $this->config('honeypot.settings')->get('form_settings');
     $form['form_settings'] = [
       '#type' => 'fieldset',
-      '#title' => t('Honeypot Enabled Forms'),
-      '#description' => t("Check the boxes next to individual forms on which you'd like Honeypot protection enabled."),
+      '#title' => $this->t('Honeypot Enabled Forms'),
+      '#description' => $this->t("Check the boxes next to individual forms on which you'd like Honeypot protection enabled."),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
       '#tree' => TRUE,
@@ -107,13 +107,13 @@ class HoneypotSettingsController extends ConfigFormBase {
     // User register form.
     $form['form_settings']['user_register_form'] = [
       '#type' => 'checkbox',
-      '#title' => t('User Registration form'),
+      '#title' => $this->t('User Registration form'),
       '#default_value' => $this->getFormSettingsValue($form_settings, 'user_register_form'),
     ];
     // User password form.
     $form['form_settings']['user_pass'] = [
       '#type' => 'checkbox',
-      '#title' => t('User Password Reset form'),
+      '#title' => $this->t('User Password Reset form'),
       '#default_value' => $this->getFormSettingsValue($form_settings, 'user_pass'),
     ];
 
@@ -122,7 +122,7 @@ class HoneypotSettingsController extends ConfigFormBase {
     if (\Drupal::moduleHandler()->moduleExists('webform')) {
       $form['form_settings']['webforms'] = [
         '#type' => 'checkbox',
-        '#title' => t('Webforms (all)'),
+        '#title' => $this->t('Webforms (all)'),
         '#default_value' => $this->getFormSettingsValue($form_settings, 'webforms'),
       ];
     }
@@ -157,7 +157,7 @@ class HoneypotSettingsController extends ConfigFormBase {
           $id = 'node_' . $type->get('type') . '_form';
           $form['form_settings'][$id] = [
             '#type' => 'checkbox',
-            '#title' => t('@name node form', ['@name' => $type->label()]),
+            '#title' => $this->t('@name node form', ['@name' => $type->label()]),
             '#default_value' => $this->getFormSettingsValue($form_settings, $id),
           ];
         }
@@ -173,7 +173,7 @@ class HoneypotSettingsController extends ConfigFormBase {
           $id = 'comment_' . $type->id() . '_form';
           $form['form_settings'][$id] = [
             '#type' => 'checkbox',
-            '#title' => t('@name comment form', ['@name' => $type->label()]),
+            '#title' => $this->t('@name comment form', ['@name' => $type->label()]),
             '#default_value' => $this->getFormSettingsValue($form_settings, $id),
           ];
         }
@@ -194,7 +194,7 @@ class HoneypotSettingsController extends ConfigFormBase {
     $form['actions']['#type'] = 'container';
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => t('Save configuration'),
+      '#value' => $this->t('Save configuration'),
     ];
 
     return $form;
@@ -211,21 +211,21 @@ class HoneypotSettingsController extends ConfigFormBase {
         // Good to go.
       }
       else {
-        $form_state->setErrorByName('time_limit', t("The time limit must be a positive integer or 0."));
+        $form_state->setErrorByName('time_limit', $this->t("The time limit must be a positive integer or 0."));
       }
     }
     else {
-      $form_state->setErrorByName('time_limit', t("The time limit must be a positive integer or 0."));
+      $form_state->setErrorByName('time_limit', $this->t("The time limit must be a positive integer or 0."));
     }
 
     // Make sure Honeypot element name only contains A-Z, 0-9.
     if (!preg_match("/^[-_a-zA-Z0-9]+$/", $form_state->getValue('element_name'))) {
-      $form_state->setErrorByName('element_name', t("The element name cannot contain spaces or other special characters."));
+      $form_state->setErrorByName('element_name', $this->t("The element name cannot contain spaces or other special characters."));
     }
 
     // Make sure Honeypot element name starts with a letter.
     if (!preg_match("/^[a-zA-Z].+$/", $form_state->getValue('element_name'))) {
-      $form_state->setErrorByName('element_name', t("The element name must start with a letter."));
+      $form_state->setErrorByName('element_name', $this->t("The element name must start with a letter."));
     }
 
     // Make sure Honeypot element name isn't one of the reserved names.
@@ -235,7 +235,7 @@ class HoneypotSettingsController extends ConfigFormBase {
       'website',
     ];
     if (in_array($form_state->getValue('element_name'), $reserved_element_names)) {
-      $form_state->setErrorByName('element_name', t("The element name cannot match one of the common Drupal form field names (e.g. @names).", ['@names' => implode(', ', $reserved_element_names)]));
+      $form_state->setErrorByName('element_name', $this->t("The element name cannot match one of the common Drupal form field names (e.g. @names).", ['@names' => implode(', ', $reserved_element_names)]));
     }
   }
 

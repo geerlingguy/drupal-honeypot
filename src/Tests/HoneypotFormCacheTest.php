@@ -2,7 +2,6 @@
 
 namespace Drupal\honeypot\Tests;
 
-use Drupal\Core\Url;
 use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\contact\Entity\ContactForm;
@@ -26,6 +25,7 @@ class HoneypotFormCacheTest extends WebTestBase {
   public static $modules = array('honeypot', 'node', 'comment', 'contact');
 
   protected $node;
+
   /**
    * {@inheritdoc}
    */
