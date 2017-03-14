@@ -98,7 +98,7 @@ function honeypot_get_protected_forms() {
  *   Array of options to be added to form. Currently accepts 'honeypot' and
  *   'time_restriction'.
  */
-function honeypot_add_form_protection(&$form, FormStateInterface $form_state, $options = array()) {
+function honeypot_add_form_protection(&$form, FormStateInterface $form_state, array $options = array()) {
   $account = \Drupal::currentUser();
 
   // Allow other modules to alter the protections applied to this form.
@@ -128,10 +128,13 @@ function honeypot_add_form_protection(&$form, FormStateInterface $form_state, $o
     ];
 
     // Hide honeypot via dynamically-generated CSS.
-    $form[$honeypot_element]['#attached']['html_head'][] = [[
-      '#tag' => 'style',
-      '#value' => '.' . $honeypot_class . ' { display: none !important; }',
-    ], 'honeypot_css'];
+    $form[$honeypot_element]['#attached']['html_head'][] = [
+      [
+        '#tag' => 'style',
+        '#value' => '.' . $honeypot_class . ' { display: none !important; }',
+      ],
+      'honeypot_css',
+    ];
   }
 
   // Build the time restriction element (if it's not disabled).
@@ -234,7 +237,7 @@ function _honeypot_log($form_id, $type) {
  * @param array $form_values
  *   Array of form values (optional).
  */
-function honeypot_get_time_limit($form_values = array()) {
+function honeypot_get_time_limit(array $form_values = array()) {
   $account = \Drupal::currentUser();
   $honeypot_time_limit = \Drupal::config('honeypot.settings')->get('time_limit');
 
@@ -259,7 +262,11 @@ function honeypot_get_time_limit($form_values = array()) {
     // Don't add more than 30 days' worth of extra time.
     $honeypot_time_limit = (int) min($honeypot_time_limit + exp($number) - 1, 2592000);
     // TODO - Only accepts two args.
-    $additions = \Drupal::moduleHandler()->invokeAll('honeypot_time_limit', [$honeypot_time_limit, $form_values, $number]);
+    $additions = \Drupal::moduleHandler()->invokeAll('honeypot_time_limit', [
+      $honeypot_time_limit,
+      $form_values,
+      $number,
+    ]);
     if (count($additions)) {
       $honeypot_time_limit += array_sum($additions);
     }
@@ -313,7 +320,7 @@ function honeypot_get_signed_timestamp($time) {
  * Validate a signed timestamp.
  *
  * @param string $signed_timestamp
- *   A timestamp concateneted with the signature
+ *   A timestamp concateneted with the signature.
  *
  * @return int
  *   The timestamp if the signature is correct, 0 otherwise.

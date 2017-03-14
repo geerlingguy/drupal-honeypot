@@ -4,14 +4,69 @@ namespace Drupal\honeypot\Controller;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\NodeType;
 use Drupal\comment\Entity\CommentType;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Cache\CacheBackendInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Returns responses for Honeypot module routes.
  */
 class HoneypotSettingsController extends ConfigFormBase {
+
+  /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * The entity manager.
+   *
+   * @var \Drupal\Core\Entity\EntityManagerInterface
+   */
+  protected $entityManager;
+
+  /**
+   * A cache backend interface.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected $cache;
+
+  /**
+   * Constructs a settings controller.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler.
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   *   The entity manager.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, EntityManagerInterface $entity_manager, CacheBackendInterface $cache_backend) {
+    parent::__construct($config_factory);
+    $this->moduleHandler = $module_handler;
+    $this->entityManager = $entity_manager;
+    $this->cache = $cache_backend;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('module_handler'),
+      $container->get('entity.manager'),
+      $container->get('cache.default')
+    );
+  }
 
   /**
    * Get a value from the retrieved form settings array.
@@ -38,7 +93,7 @@ class HoneypotSettingsController extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormID() {
+  public function getFormId() {
     return 'honeypot_settings_form';
   }
 
@@ -59,7 +114,7 @@ class HoneypotSettingsController extends ConfigFormBase {
       '#description' => $this->t('Enable Honeypot protection for ALL forms on this site (it is best to only enable Honeypot for the forms you need below).'),
       '#default_value' => $this->config('honeypot.settings')->get('protect_all_forms'),
     ];
-    $form['configuration']['protect_all_forms']['#description'] .= '<br />' . t('<strong>Page caching will be disabled on any page where a form is present if the Honeypot time limit is not set to 0.</strong>');
+    $form['configuration']['protect_all_forms']['#description'] .= '<br />' . $this->t('<strong>Page caching will be disabled on any page where a form is present if the Honeypot time limit is not set to 0.</strong>');
     $form['configuration']['log'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Log blocked form submissions'),
@@ -81,9 +136,9 @@ class HoneypotSettingsController extends ConfigFormBase {
       '#default_value' => $this->config('honeypot.settings')->get('time_limit'),
       '#required' => TRUE,
       '#size' => 5,
-      '#field_suffix' => t('seconds'),
+      '#field_suffix' => $this->t('seconds'),
     ];
-    $form['configuration']['time_limit']['#description'] .= '<br />' . t('<strong>Page caching will be disabled if there is a form protected by time limit on the page.</strong>');
+    $form['configuration']['time_limit']['#description'] .= '<br />' . $this->t('<strong>Page caching will be disabled if there is a form protected by time limit on the page.</strong>');
 
     // Honeypot Enabled forms.
     $form_settings = $this->config('honeypot.settings')->get('form_settings');
@@ -103,7 +158,7 @@ class HoneypotSettingsController extends ConfigFormBase {
     ];
 
     // Generic forms.
-    $form['form_settings']['general_forms'] = ['#markup' => '<h5>' . t('General Forms') . '</h5>'];
+    $form['form_settings']['general_forms'] = ['#markup' => '<h5>' . $this->t('General Forms') . '</h5>'];
     // User register form.
     $form['form_settings']['user_register_form'] = [
       '#type' => 'checkbox',
@@ -119,7 +174,7 @@ class HoneypotSettingsController extends ConfigFormBase {
 
     // If webform.module enabled, add webforms.
     // TODO D8 - See if D8 version of Webform.module still uses this form ID.
-    if (\Drupal::moduleHandler()->moduleExists('webform')) {
+    if ($this->moduleHandler->moduleExists('webform')) {
       $form['form_settings']['webforms'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Webforms (all)'),
@@ -128,11 +183,11 @@ class HoneypotSettingsController extends ConfigFormBase {
     }
 
     // If contact.module enabled, add contact forms.
-    if (\Drupal::moduleHandler()->moduleExists('contact')) {
-      $form['form_settings']['contact_forms'] = ['#markup' => '<h5>' . t('Contact Forms') . '</h5>'];
+    if ($this->moduleHandler->moduleExists('contact')) {
+      $form['form_settings']['contact_forms'] = ['#markup' => '<h5>' . $this->t('Contact Forms') . '</h5>'];
 
-      $bundles = \Drupal::entityManager()->getBundleInfo('contact_message');
-      $formController = \Drupal::entityManager()->getFormObject('contact_message', 'default');
+      $bundles = $this->entityManager->getBundleInfo('contact_message');
+      $formController = $this->entityManager->getFormObject('contact_message', 'default');
 
       foreach ($bundles as $bundle_key => $bundle) {
         $stub = entity_create('contact_message', ['contact_form' => $bundle_key]);
@@ -148,11 +203,11 @@ class HoneypotSettingsController extends ConfigFormBase {
     }
 
     // Node types for node forms.
-    if (\Drupal::moduleHandler()->moduleExists('node')) {
+    if ($this->moduleHandler->moduleExists('node')) {
       $types = NodeType::loadMultiple();
       if (!empty($types)) {
         // Node forms.
-        $form['form_settings']['node_forms'] = ['#markup' => '<h5>' . t('Node Forms') . '</h5>'];
+        $form['form_settings']['node_forms'] = ['#markup' => '<h5>' . $this->t('Node Forms') . '</h5>'];
         foreach ($types as $type) {
           $id = 'node_' . $type->get('type') . '_form';
           $form['form_settings'][$id] = [
@@ -165,10 +220,10 @@ class HoneypotSettingsController extends ConfigFormBase {
     }
 
     // Comment types for comment forms.
-    if (\Drupal::moduleHandler()->moduleExists('comment')) {
+    if ($this->moduleHandler->moduleExists('comment')) {
       $types = CommentType::loadMultiple();
       if (!empty($types)) {
-        $form['form_settings']['comment_forms'] = ['#markup' => '<h5>' . t('Comment Forms') . '</h5>'];
+        $form['form_settings']['comment_forms'] = ['#markup' => '<h5>' . $this->t('Comment Forms') . '</h5>'];
         foreach ($types as $type) {
           $id = 'comment_' . $type->id() . '_form';
           $form['form_settings'][$id] = [
@@ -259,10 +314,10 @@ class HoneypotSettingsController extends ConfigFormBase {
     $config->save();
 
     // Clear the honeypot protected forms cache.
-    \Drupal::cache()->delete('honeypot_protected_forms');
+    $this->cache->delete('honeypot_protected_forms');
 
     // Tell the user the settings have been saved.
-    drupal_set_message(t('The configuration options have been saved.'));
+    drupal_set_message($this->t('The configuration options have been saved.'));
   }
 
 }
