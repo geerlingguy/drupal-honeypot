@@ -9,7 +9,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\NodeType;
 use Drupal\comment\Entity\CommentType;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -26,11 +27,18 @@ class HoneypotSettingsController extends ConfigFormBase {
   protected $moduleHandler;
 
   /**
-   * The entity manager.
+   * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
+
+  /**
+   * The entity type bundle info service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
+   */
+  protected $entityTypeBundleInfo;
 
   /**
    * A cache backend interface.
@@ -46,13 +54,16 @@ class HoneypotSettingsController extends ConfigFormBase {
    *   The factory for configuration objects.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle info service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, EntityManagerInterface $entity_manager, CacheBackendInterface $cache_backend) {
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, CacheBackendInterface $cache_backend) {
     parent::__construct($config_factory);
     $this->moduleHandler = $module_handler;
-    $this->entityManager = $entity_manager;
+    $this->entityTypeManager = $entity_type_manager;
+    $this->entityTypeBundleInfo = $entity_type_bundle_info;
     $this->cache = $cache_backend;
   }
 
@@ -63,7 +74,8 @@ class HoneypotSettingsController extends ConfigFormBase {
     return new static(
       $container->get('config.factory'),
       $container->get('module_handler'),
-      $container->get('entity.manager'),
+      $container->get('entity_type.manager'),
+      $container->get('entity_type.bundle.info'),
       $container->get('cache.default')
     );
   }
@@ -186,11 +198,13 @@ class HoneypotSettingsController extends ConfigFormBase {
     if ($this->moduleHandler->moduleExists('contact')) {
       $form['form_settings']['contact_forms'] = ['#markup' => '<h5>' . $this->t('Contact Forms') . '</h5>'];
 
-      $bundles = $this->entityManager->getBundleInfo('contact_message');
-      $formController = $this->entityManager->getFormObject('contact_message', 'default');
+      $bundles = $this->entityTypeBundleInfo->getBundleInfo('contact_message');
+      $formController = $this->entityTypeManager->getFormObject('contact_message', 'default');
 
       foreach ($bundles as $bundle_key => $bundle) {
-        $stub = entity_create('contact_message', ['contact_form' => $bundle_key]);
+        $stub = $this->entityTypeManager->getStorage('contact_message')->create([
+          'contact_form' => $bundle_key
+        ]);
         $formController->setEntity($stub);
         $form_id = $formController->getFormId();
 
