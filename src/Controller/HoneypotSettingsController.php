@@ -58,6 +58,8 @@ class HoneypotSettingsController extends ConfigFormBase {
    *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
    *   The entity type bundle info service.
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
+   *   The cache backend interface.
    */
   public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, CacheBackendInterface $cache_backend) {
     parent::__construct($config_factory);
@@ -203,7 +205,7 @@ class HoneypotSettingsController extends ConfigFormBase {
 
       foreach ($bundles as $bundle_key => $bundle) {
         $stub = $this->entityTypeManager->getStorage('contact_message')->create([
-          'contact_form' => $bundle_key
+          'contact_form' => $bundle_key,
         ]);
         $formController->setEntity($stub);
         $form_id = $formController->getFormId();

@@ -98,7 +98,7 @@ function honeypot_get_protected_forms() {
  *   Array of options to be added to form. Currently accepts 'honeypot' and
  *   'time_restriction'.
  */
-function honeypot_add_form_protection(&$form, FormStateInterface $form_state, array $options = array()) {
+function honeypot_add_form_protection(&$form, FormStateInterface $form_state, array $options = []) {
   $account = \Drupal::currentUser();
 
   // Allow other modules to alter the protections applied to this form.
@@ -237,7 +237,7 @@ function _honeypot_log($form_id, $type) {
  * @param array $form_values
  *   Array of form values (optional).
  */
-function honeypot_get_time_limit(array $form_values = array()) {
+function honeypot_get_time_limit(array $form_values = []) {
   $account = \Drupal::currentUser();
   $honeypot_time_limit = \Drupal::config('honeypot.settings')->get('time_limit');
 

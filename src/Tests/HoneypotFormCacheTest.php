@@ -22,7 +22,7 @@ class HoneypotFormCacheTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('honeypot', 'node', 'comment', 'contact');
+  public static $modules = ['honeypot', 'node', 'comment', 'contact'];
 
   protected $node;
 
