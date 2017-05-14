@@ -117,24 +117,26 @@ function honeypot_add_form_protection(&$form, FormStateInterface $form_state, ar
     // Build the honeypot element.
     $honeypot_class = $honeypot_element . '-textfield';
     $form[$honeypot_element] = [
+      '#theme_wrappers' => [
+        'container' => [
+          '#attributes' => [
+            'class' => [
+              $honeypot_class,
+            ],
+            'style' => [
+              'display: none !important;',
+            ],
+          ],
+        ],
+      ],
       '#type' => 'textfield',
       '#title' => t('Leave this field blank'),
       '#size' => 20,
       '#weight' => 100,
       '#attributes' => ['autocomplete' => 'off'],
       '#element_validate' => ['_honeypot_honeypot_validate'],
-      '#prefix' => '<div class="' . $honeypot_class . '">',
-      '#suffix' => '</div>',
     ];
 
-    // Hide honeypot via dynamically-generated CSS.
-    $form[$honeypot_element]['#attached']['html_head'][] = [
-      [
-        '#tag' => 'style',
-        '#value' => '.' . $honeypot_class . ' { display: none !important; }',
-      ],
-      'honeypot_css',
-    ];
   }
 
   // Build the time restriction element (if it's not disabled).
