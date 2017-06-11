@@ -119,6 +119,7 @@ function honeypot_add_form_protection(&$form, FormStateInterface $form_state, ar
     $form[$honeypot_element] = [
       '#theme_wrappers' => [
         'container' => [
+          '#id' => NULL,
           '#attributes' => [
             'class' => [
               $honeypot_class,
