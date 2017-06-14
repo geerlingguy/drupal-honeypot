@@ -36,6 +36,18 @@ Note that you can enable or disable either the honeypot field, or the time
 restriction on the form by including or not including the option in the array.
 
 
+## Testing
+
+Honeypot includes a `docker-compose.yml` file that can be used for testing purposes. To build a Drupal 8 environment for local testing, do the following:
+
+  1. Make sure you have Docker for Mac (or for whatever OS you're using) installed.
+  2. Add the following entry to your `/etc/hosts` file: `192.168.22.33   local.drupalhoneypot.com`
+  3. Run `docker-compose up -d` in this directory.
+  4. Install Drupal: `docker exec honeypot install-drupal` (optionally provide a version after `install-drupal`).
+  5. Link the honeypot module directory into the Drupal modules directory: `docker exec honeypot ln -s /opt/honeypot/ /var/www/drupalvm/drupal/web/modules/honeypot`
+  6. Visit `http://local.drupalhoneypot.com/user` and log in using the admin credentials Drush displayed.
+
+
 ## Credit
 
 The Honeypot module was originally developed by Jeff Geerling of Midwestern Mac,
