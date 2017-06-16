@@ -15,7 +15,9 @@ services:
       - 8.8.8.8
       - 8.8.4.4
     volumes:
-      - ./:/opt/honeypot/:rw,delegated
+      # Switch to the commented line once Docker CE stable has the feature.
+      - ./:/opt/honeypot/:rw
+      # - ./:/opt/honeypot/:rw,delegated
     command: /lib/systemd/systemd
     networks:
       honeypot:
