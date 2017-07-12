@@ -30,6 +30,11 @@ function honeypot_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     return;
   }
 
+  // Add a tag to all forms, so that if they are cached and honeypot
+  // configuration is changed, the cached forms are invalidated and honeypot
+  // protection can be re-evaluated.
+  $form['#cache']['tags'][] = 'config:honeypot.settings';
+
   // Get list of unprotected forms and setting for whether to protect all forms.
   $unprotected_forms = \Drupal::config('honeypot.settings')->get('unprotected_forms');
   $protect_all_forms = \Drupal::config('honeypot.settings')->get('protect_all_forms');
