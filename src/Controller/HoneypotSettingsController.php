@@ -186,16 +186,6 @@ class HoneypotSettingsController extends ConfigFormBase {
       '#default_value' => $this->getFormSettingsValue($form_settings, 'user_pass'),
     ];
 
-    // If webform.module enabled, add webforms.
-    // TODO D8 - See if D8 version of Webform.module still uses this form ID.
-    if ($this->moduleHandler->moduleExists('webform')) {
-      $form['form_settings']['webforms'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t('Webforms (all)'),
-        '#default_value' => $this->getFormSettingsValue($form_settings, 'webforms'),
-      ];
-    }
-
     // If contact.module enabled, add contact forms.
     if ($this->moduleHandler->moduleExists('contact')) {
       $form['form_settings']['contact_forms'] = ['#markup' => '<h5>' . $this->t('Contact Forms') . '</h5>'];
