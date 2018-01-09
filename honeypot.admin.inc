@@ -46,7 +46,23 @@ function honeypot_admin_form($form, &$form_state) {
     '#size' => 5,
     '#field_suffix' => t('seconds'),
   );
-  $form['configuration']['honeypot_time_limit']['#description'] .= '<br />' . t('<strong>Page caching will be disabled if there is a form protected by time limit on the page.</strong>');
+  if (!variable_get('honeypot_use_js_for_cached_pages', FALSE)) {
+    $form['configuration']['honeypot_time_limit']['#description'] .= '<br />' . t('<strong>Page caching will be disabled if there is a form protected by time limit on the page.</strong>');
+  }
+
+  $form['configuration']['honeypot_use_js_for_cached_pages'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use Javascript protection for cacheable pages. (experimental)'),
+    '#description' => t('Uses a Javascript implementation to avoid disabling of Page caching.'),
+    '#default_value' => variable_get('honeypot_use_js_for_cached_pages', FALSE),
+    '#states' => array(
+      // Hide this when time limit is disabled.
+      'invisible' => array(
+        'input[name="honeypot_time_limit"]' => array('value' => 0),
+      ),
+    ),
+  );
+  $form['configuration']['honeypot_use_js_for_cached_pages']['#description'] .= '<br />' . t('<strong>Warning: Users that have javascript disabled will need to confirm their form submission on the next page - if the honeypot enabled form is on a cacheable page.</strong>');
 
   // Honeypot Enabled forms.
   $form['enabled_forms'] = array(
