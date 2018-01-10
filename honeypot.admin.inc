@@ -22,7 +22,9 @@ function honeypot_admin_form($form, &$form_state) {
     '#description' => t('Enable Honeypot protection for ALL forms on this site (it is best to only enable Honeypot for the forms you need below).'),
     '#default_value' => variable_get('honeypot_protect_all_forms', 0),
   );
-  $form['configuration']['honeypot_protect_all_forms']['#description'] .= '<br />' . t('<strong>Page caching will be disabled on any page where a form is present if the Honeypot time limit is not set to 0.</strong>');
+  if (!variable_get('honeypot_use_js_for_cached_pages', FALSE)) {
+    $form['configuration']['honeypot_protect_all_forms']['#description'] .= '<br />' . t('<strong>Page caching will be disabled on any page where a form is present if the Honeypot time limit is not set to 0.</strong>');
+  }
   $form['configuration']['honeypot_log'] = array(
     '#type' => 'checkbox',
     '#title' => t('Log blocked form submissions'),
@@ -53,7 +55,7 @@ function honeypot_admin_form($form, &$form_state) {
   $form['configuration']['honeypot_use_js_for_cached_pages'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use Javascript protection for cacheable pages. (experimental)'),
-    '#description' => t('Uses a Javascript implementation to avoid disabling of Page caching.'),
+    '#description' => t('Uses Javascript to preserve Page caching.'),
     '#default_value' => variable_get('honeypot_use_js_for_cached_pages', FALSE),
     '#states' => array(
       // Hide this when time limit is disabled.
@@ -62,7 +64,7 @@ function honeypot_admin_form($form, &$form_state) {
       ),
     ),
   );
-  $form['configuration']['honeypot_use_js_for_cached_pages']['#description'] .= '<br />' . t('<strong>Warning: Users that have javascript disabled will need to confirm their form submission on the next page - if the honeypot enabled form is on a cacheable page.</strong>');
+  $form['configuration']['honeypot_use_js_for_cached_pages']['#description'] .= '<br />' . t('<strong>Warning: Users who have javascript disabled will need to confirm their form submission on the next page (if the Honeypot-enabled form is on a cacheable page).</strong>');
 
   // Honeypot Enabled forms.
   $form['enabled_forms'] = array(

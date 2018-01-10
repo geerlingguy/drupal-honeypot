@@ -330,18 +330,19 @@ function _honeypot_time_restriction_validate(&$element, &$form_state) {
 
   $honeypot_time = FALSE;
 
-  // Is this a javascript submission?
+  // Update the honeypot_time for JS requests and get the $honeypot_time value.
   if (strpos($form_state['values']['honeypot_time'], 'js_token:') === 0) {
     $interval = _honeypot_get_interval_from_signed_js_value($form_state['values']['honeypot_time']);
     if ($interval) {
-      // Set correct values for below validation.
+      // Set correct value for timestamp validation.
       $honeypot_time = REQUEST_TIME - $interval;
 
-      // Update form_state and element values.
+      // Update form_state and element values so they're correct.
       $form_state['values']['honeypot_time'] = honeypot_get_signed_timestamp($honeypot_time);
       $element['#value'] = $form_state['values']['honeypot_time'];
     }
   }
+  // Otherwise just get the $honeypot_time value.
   else {
     // Get the time value.
     $honeypot_time = honeypot_get_time_from_signed_timestamp($form_state['values']['honeypot_time']);
@@ -356,7 +357,7 @@ function _honeypot_time_restriction_validate(&$element, &$form_state) {
     _honeypot_log($form_state['values']['form_id'], 'honeypot_time');
     // Get the time limit again, since it increases after first failure.
     $time_limit = honeypot_get_time_limit($form_state['values']);
-    // Ensure to update both $form_state and the $element value.
+    // Update the honeypot_time value in the form state and element.
     $form_state['values']['honeypot_time'] = honeypot_get_signed_timestamp(REQUEST_TIME);
     $element['#value'] = $form_state['values']['honeypot_time'];
     form_set_error('', t('There was a problem with your form submission. Please wait @limit seconds and try again.', array('@limit' => $time_limit)));
