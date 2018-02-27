@@ -143,24 +143,24 @@ function honeypot_library() {
   $version = $info['version'];
 
   // Library for Honeypot JS.
-  $libraries['timestamp.js'] = [
+  $libraries['timestamp.js'] = array(
     'title' => 'Javascript to support timelimit on cached pages.',
     'version' => $version,
-    'js' => [
-      [
+    'js' => array(
+      array(
         'type' => 'setting',
-        'data' => [
-          'honeypot' => [
+        'data' => array(
+          'honeypot' => array(
             'jsToken' => honeypot_get_signed_timestamp('js_token:' . mt_rand(0, 2147483647)),
-           ],
-         ],
-      ],
-      drupal_get_path('module', 'honeypot') . '/js/honeypot.js' => [
+           ),
+         ),
+      ),
+      drupal_get_path('module', 'honeypot') . '/js/honeypot.js' => array(
         'group' => JS_LIBRARY,
         'weight' => 3,
-      ],
-    ],
-  ];
+      ),
+    ),
+  );
 
   return $libraries;
 }
