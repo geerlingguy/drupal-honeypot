@@ -503,7 +503,7 @@ function honeypot_log_failure($form_id, $type) {
  *   The path to the honeypot.css file.
  */
 function honeypot_get_css_file_path() {
-  return variable_get('file_public_path', conf_path() . '/files') . '/honeypot/honeypot.css';
+  return file_default_scheme() . '://honeypot/honeypot.css';
 }
 
 /**
@@ -513,7 +513,7 @@ function honeypot_get_css_file_path() {
  *   The honeypot element class name (e.g. 'url').
  */
 function honeypot_create_css($element_name) {
-  $path = 'public://honeypot';
+  $path = file_default_scheme() . '://honeypot';
 
   if (!file_prepare_directory($path, FILE_CREATE_DIRECTORY)) {
     drupal_set_message(t('Unable to create Honeypot CSS directory, %path. Check the permissions on your files directory.', array('%path' => file_uri_target($path))), 'error');
