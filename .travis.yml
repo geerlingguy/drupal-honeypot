@@ -38,4 +38,4 @@ script:
   - docker exec honeypot chown -R www-data:www-data /var/www/drupalvm/drupal/web/sites/default/files
 
   # Run module tests.
-  - docker exec honeypot bash -c 'sudo -u www-data php /var/www/drupalvm/drupal/web/core/scripts/run-tests.sh --module honeypot --url http://localhost/'
+  - docker exec honeypot bash -c 'sudo -u www-data php /var/www/drupalvm/drupal/web/core/scripts/run-tests.sh --verbose --module honeypot --url http://localhost/'
