@@ -294,7 +294,7 @@ function honeypot_get_time_limit(array $form_values = []) {
     $number = $query->countQuery()->execute()->fetchField();
 
     // Don't add more than 30 days' worth of extra time.
-    $honeypot_time_limit = (int) min($honeypot_time_limit + exp($number) - 1, 2592000);
+    $honeypot_time_limit = (int) min($honeypot_time_limit + exp($number) - 1, $expire_time);
     // TODO - Only accepts two args.
     $additions = \Drupal::moduleHandler()->invokeAll('honeypot_time_limit', [
       $honeypot_time_limit,
