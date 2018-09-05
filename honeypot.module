@@ -168,7 +168,7 @@ function honeypot_add_form_protection(&$form, FormStateInterface $form_state, ar
     $input = $form_state->getUserInput();
     if (empty($input['honeypot_time'])) {
       $identifier = Crypt::randomBytesBase64();
-      \Drupal::service('keyvalue.expirable')->get('honeypot_time_restriction')->set($identifier, time(), 3600*24);
+      \Drupal::service('keyvalue.expirable')->get('honeypot_time_restriction')->setWithExpire($identifier, time(), 3600*24);
     }
     else {
       $identifier = $input['honeypot_time'];
@@ -239,7 +239,7 @@ function _honeypot_time_restriction_validate($element, FormStateInterface $form_
   if (!$honeypot_time || \Drupal::time()->getRequestTime() < ($honeypot_time + $time_limit)) {
     _honeypot_log($form_state->getValue('form_id'), 'honeypot_time');
     $time_limit = honeypot_get_time_limit();
-    \Drupal::service('keyvalue.expirable')->get('honeypot_time_restriction')->set($identifier, \Drupal::time()->getRequestTime(), 3600*24);
+    \Drupal::service('keyvalue.expirable')->get('honeypot_time_restriction')->setWithExpire($identifier, \Drupal::time()->getRequestTime(), 3600*24);
     $form_state->setErrorByName('', t('There was a problem with your form submission. Please wait @limit seconds and try again.', ['@limit' => $time_limit]));
   }
 }
