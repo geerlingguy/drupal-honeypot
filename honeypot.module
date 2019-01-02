@@ -140,6 +140,7 @@ function honeypot_add_form_protection(&$form, FormStateInterface $form_state, ar
     $honeypot_class = $honeypot_element . '-textfield';
     $form[$honeypot_element] = [
       '#theme_wrappers' => [
+        'form_element',
         'container' => [
           '#id' => NULL,
           '#attributes' => [
