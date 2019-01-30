@@ -47,10 +47,13 @@ Honeypot includes a `docker-compose.yml` file that can be used for testing purpo
   3. Run `docker-compose up -d` in this directory.
   4. Install Drupal: `docker exec honeypot install-drupal` (optionally provide a version after `install-drupal`).
   5. Link the honeypot module directory into the Drupal modules directory: `docker exec honeypot ln -s /opt/honeypot/ /var/www/drupalvm/drupal/web/modules/honeypot`
-  6. Visit `http://local.drupalhoneypot.com/user` and log in using the admin credentials Drush displayed.
+  6. Visit `http://local.drupalhoneypot.com/user` and log in using `admin`/`admin`.
 
-> Note: If you're using a Mac, you may also need to perform additional steps to get the hostname working; see [Managing your hosts file](http://docs.drupalvm.com/en/latest/other/docker/#managing-your-hosts-file) in the Drupal VM documentation.
-
+> Note: If you're using a Mac, you may also need to perform additional steps to get the hostname working; see [Managing your hosts file](http://docs.drupalvm.com/en/latest/other/docker/#managing-your-hosts-file) in the Drupal VM documentation:
+>
+> ```
+> sudo ifconfig lo0 alias 192.168.89.89/24
+> ```
 
 ## Credit
 
