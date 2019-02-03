@@ -52,7 +52,7 @@ Honeypot includes a `docker-compose.yml` file that can be used for testing purpo
 > Note: If you're using a Mac, you may also need to perform additional steps to get the hostname working; see [Managing your hosts file](http://docs.drupalvm.com/en/latest/other/docker/#managing-your-hosts-file) in the Drupal VM documentation:
 >
 > ```
-> sudo ifconfig lo0 alias 192.168.89.89/24
+> sudo ifconfig lo0 alias 192.168.22.33/24
 > ```
 
 ## Credit
