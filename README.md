@@ -43,9 +43,14 @@ restriction on the form by including or not including the option in the array.
 Honeypot includes a `docker-compose.yml` file that can be used for testing purposes. To build a Drupal 8 environment for local testing, do the following:
 
   1. Make sure you have Docker for Mac (or for whatever OS you're using) installed.
-  1. Run `docker-compose up -d` in this directory.
-  1. Run `docker-compose exec drupal composer install --dev`
-  1. Run `docker-compose exec drupal composer require --dev drush/drush`
+  1. Run the following commands in this directory to start the environment and install Drush:
+
+     ```
+     docker-compose up -d
+     docker-compose exec drupal bash -c 'composer install --dev'
+     docker-compose exec drupal bash -c 'composer require --dev drush/drush'
+     ```
+
   1. Link the honeypot module directory into the Drupal modules directory:
 
      ```

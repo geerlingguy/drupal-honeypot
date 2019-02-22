@@ -22,7 +22,7 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
-script:
+install:
   # Build environment.
   - docker-compose up -d
   - sleep 5
@@ -32,13 +32,19 @@ script:
   - docker-compose exec drupal ln -s /opt/honeypot/ /var/www/html/modules/honeypot
 
   # Install Drupal and Honeypot/Testing.
-  - docker-compose exec drupal bash -c 'vendor/bin/drush site:install standard --site-name="Honeypot Test" --account-pass admin -y && chown -R www-data:www-data sites/default/files'
+  - docker-compose exec drupal bash -c 'sudo -u www-data vendor/bin/drush site:install standard --site-name="Honeypot Test" --account-pass admin -y'
   - docker-compose exec drupal bash -c 'vendor/bin/drush en -y honeypot simpletest'
 
+before_script:
   # Adjust permissions on the simpletest directories.
   - docker exec honeypot mkdir -p /var/www/html/sites/simpletest
   - docker exec honeypot chown -R www-data:www-data /var/www/html/sites/simpletest
 
+script:
   # Run module tests.
   - docker-compose exec drupal bash -c 'composer run-script drupal-phpunit-upgrade'
+  - docker-compose exec drupal bash -c 'sudo -u www-data php core/scripts/run-tests.sh --module honeypot --url http://localhost/'
+
+after_failure:
+  # Re-run tests with verbose output for debugging.
   - docker-compose exec drupal bash -c 'sudo -u www-data php core/scripts/run-tests.sh --verbose --module honeypot --url http://localhost/'
