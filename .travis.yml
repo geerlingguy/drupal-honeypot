@@ -1,10 +1,10 @@
 ---
 language: php
-php: '7.1'
+php: '7.2'
 services: docker
 
 env:
-  DOCKER_COMPOSE_VERSION: 1.22.0
+  DOCKER_COMPOSE_VERSION: 1.23.2
 
 before_install:
   # List available docker-engine versions.
@@ -22,20 +22,22 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
-  # Pull container.
-  - docker pull geerlingguy/drupal-vm:latest
-
 script:
-  # Build environment and install Honeypot.
+  # Build environment.
   - docker-compose up -d
-  - docker exec honeypot install-drupal 8.x-dev
-  - docker exec honeypot ln -s /opt/honeypot/ /var/www/drupalvm/drupal/web/modules/honeypot
-  - docker exec honeypot bash -c 'cd /var/www/drupalvm/drupal/web; drush en -y honeypot simpletest'
+  - sleep 5
+  - docker-compose exec drupal composer install --dev
+  - docker-compose exec drupal composer require --dev drush/drush
+  - docker-compose exec drupal ln -s /opt/honeypot/ /var/www/html/modules/honeypot
 
-  # Fix permissions on the simpletest directories.
-  - docker exec honeypot mkdir -p /var/www/drupalvm/drupal/web/sites/simpletest
-  - docker exec honeypot chown -R www-data:www-data /var/www/drupalvm/drupal/web/sites/simpletest
-  - docker exec honeypot chown -R www-data:www-data /var/www/drupalvm/drupal/web/sites/default/files
+  # Install Drupal and Honeypot/Testing.
+  - docker-compose exec drupal bash -c 'vendor/bin/drush site:install standard --site-name="Honeypot Test" --account-pass admin -y && chown -R www-data:www-data sites/default/files'
+  - docker-compose exec drupal bash -c 'vendor/bin/drush en -y honeypot simpletest'
+
+  # Adjust permissions on the simpletest directories.
+  - docker exec honeypot mkdir -p /var/www/html/sites/simpletest
+  - docker exec honeypot chown -R www-data:www-data /var/www/html/sites/simpletest
 
   # Run module tests.
-  - docker exec honeypot bash -c 'sudo -u www-data php /var/www/drupalvm/drupal/web/core/scripts/run-tests.sh --verbose --module honeypot --url http://localhost/'
+  - docker-compose exec drupal bash -c 'composer run-script drupal-phpunit-upgrade'
+  - docker-compose exec drupal bash -c 'php core/scripts/run-tests.sh --verbose --module honeypot --url http://localhost/'
