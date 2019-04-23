@@ -1,22 +1,24 @@
 <?php
 
-namespace Drupal\honeypot\Tests;
+namespace Drupal\Tests\honeypot\Functional;
 
 use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\contact\Entity\ContactForm;
-use Drupal\simpletest\WebTestBase;
+use Drupal\Tests\BrowserTestBase;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
+use Drupal\user\UserInterface;
 
 /**
  * Tests page caching on Honeypot protected forms.
  *
  * @group honeypot
  */
-class HoneypotFormCacheTest extends WebTestBase {
+class HoneypotFormCacheTest extends BrowserTestBase {
 
   use CommentTestTrait;
+
   /**
    * Modules to enable.
    *
@@ -24,6 +26,11 @@ class HoneypotFormCacheTest extends WebTestBase {
    */
   public static $modules = ['honeypot', 'node', 'comment', 'contact'];
 
+  /**
+   * Node object.
+   *
+   * @var \Drupal\node\NodeInterface
+   */
   protected $node;
 
   /**
@@ -45,7 +52,7 @@ class HoneypotFormCacheTest extends WebTestBase {
     // Set up other required configuration.
     $user_config = \Drupal::configFactory()->getEditable('user.settings');
     $user_config->set('verify_mail', TRUE);
-    $user_config->set('register', USER_REGISTER_VISITORS);
+    $user_config->set('register', UserInterface::REGISTER_VISITORS);
     $user_config->save();
 
     // Create an Article node type.
@@ -120,7 +127,7 @@ class HoneypotFormCacheTest extends WebTestBase {
 
     // Test on cache header with time limit enabled, cache should miss.
     $this->drupalGet('node/' . $this->node->id());
-    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), '', 'Page was not cached.');
+    $this->assertEquals('', $this->drupalGetHeader('X-Drupal-Cache'), 'Page was not cached.');
 
     // Disable time limit.
     \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 0)->save();
@@ -130,7 +137,7 @@ class HoneypotFormCacheTest extends WebTestBase {
 
     // Test on cache header with time limit disabled, cache should hit.
     $this->drupalGet('node/' . $this->node->id());
-    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT', 'Page was cached.');
+    $this->assertEquals('HIT', $this->drupalGetHeader('X-Drupal-Cache'), 'Page was cached.');
 
   }
 
