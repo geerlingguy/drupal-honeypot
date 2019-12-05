@@ -21,7 +21,7 @@ install:
   - sleep 5
   - docker-compose exec drupal bash -c 'apt-get update && apt-get install -y sudo'
   - docker-compose exec drupal composer install --dev
-  - docker-compose exec drupal composer require --dev drush/drush
+  - docker-compose exec drupal composer require --dev drush/drush phpunit/phpunit:^7 --ignore-platform-reqs
   - docker-compose exec drupal ln -s /opt/honeypot/ /var/www/html/modules/honeypot
 
   # Install Drupal and Honeypot/Testing.
@@ -35,7 +35,6 @@ before_script:
 
 script:
   # Run module tests.
-  - docker-compose exec drupal bash -c 'composer run-script drupal-phpunit-upgrade'
   - docker-compose exec drupal bash -c 'sudo -u www-data php core/scripts/run-tests.sh --module honeypot --url http://localhost/'
 
 after_failure:
