@@ -20,11 +20,11 @@ class HoneypotFormCacheTest extends BrowserTestBase {
   use CommentTestTrait;
 
   /**
-   * Modules to enable.
+   * Default theme.
    *
-   * @var array
+   * @var string
    */
-  public static $modules = ['honeypot', 'node', 'comment', 'contact'];
+  protected $defaultTheme = 'stark';
 
   /**
    * Node object.
@@ -32,6 +32,13 @@ class HoneypotFormCacheTest extends BrowserTestBase {
    * @var \Drupal\node\NodeInterface
    */
   protected $node;
+
+  /**
+   * Modules to enable.
+   *
+   * @var array
+   */
+  public static $modules = ['honeypot', 'node', 'comment', 'contact'];
 
   /**
    * {@inheritdoc}

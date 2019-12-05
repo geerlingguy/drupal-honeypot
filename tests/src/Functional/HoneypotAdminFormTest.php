@@ -19,6 +19,13 @@ class HoneypotAdminFormTest extends BrowserTestBase {
   protected $adminUser;
 
   /**
+   * Default theme.
+   *
+   * @var string
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Modules to enable.
    *
    * @var array

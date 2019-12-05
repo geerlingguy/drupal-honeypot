@@ -39,6 +39,13 @@ class HoneypotFormTest extends BrowserTestBase {
   protected $node;
 
   /**
+   * Default theme.
+   *
+   * @var string
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Modules to enable.
    *
    * @var array

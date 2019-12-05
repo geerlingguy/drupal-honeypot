@@ -13,6 +13,13 @@ use Drupal\Tests\BrowserTestBase;
 class HoneypotFormProgrammaticSubmissionTest extends BrowserTestBase {
 
   /**
+   * Default theme.
+   *
+   * @var string
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Modules to enable.
    *
    * @var array
@@ -43,7 +50,7 @@ class HoneypotFormProgrammaticSubmissionTest extends BrowserTestBase {
     $result = $this->drupalGet('/honeypot_test/submit_form');
     $form_errors = (array) Json::decode($result);
     $this->assertSession()->responseNotContains('There was a problem with your form submission. Please wait 6 seconds and try again.');
-    $this->assertFalse($form_errors, 'The were no validation errors when submitting the form.');
+    $this->assertEmpty($form_errors, 'The were no validation errors when submitting the form.');
   }
 
 }
