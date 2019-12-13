@@ -171,6 +171,22 @@ class HoneypotFormTest extends BrowserTestBase {
   }
 
   /**
+   * Test that any (not-strict-empty) value triggers protection.
+   */
+  public function testStrictEmptinessOnHoneypotField() {
+    // Initialise the form values.
+    $edit['name'] = $this->randomMachineName();
+    $edit['mail'] = $edit['name'] . '@example.com';
+
+    // Any value that is not strictly empty should trigger Honeypot.
+    foreach (['0', ' '] as $value) {
+      $edit['url'] = $value;
+      $this->drupalPostForm('user/register', $edit, t('Create new account'));
+      $this->assertText(t('There was a problem with your form submission. Please refresh the page and try again.'), "Honeypot protection is triggered when the honeypot field contains '{$value}'.");
+    }
+  }
+
+  /**
    * Test comment form protection.
    */
   public function testProtectCommentFormNormal() {
