@@ -47,25 +47,25 @@ Honeypot includes a `docker-compose.yml` file that can be used for testing purpo
 
      ```
      docker-compose up -d
-     docker-compose exec drupal bash -c 'composer install --dev'
-     docker-compose exec drupal bash -c 'composer require --dev drush/drush'
+     # Wait a couple minutes for the container to build the Drupal codebase.
+     docker-compose exec drupal bash -c 'composer require drush/drush'
      ```
 
   1. Link the honeypot module directory into the Drupal modules directory:
 
      ```
-     docker-compose exec drupal ln -s /opt/honeypot/ /var/www/html/modules/honeypot
+     docker-compose exec drupal ln -s /opt/honeypot/ /var/www/html/web/modules/honeypot
      ```
 
   1. Install Drupal with Drush:
 
      ```
-     docker-compose exec drupal bash -c 'vendor/bin/drush site:install standard --site-name="Honeypot Test" --account-pass admin -y && chown -R www-data:www-data sites/default/files'
+     docker-compose exec drupal bash -c 'vendor/bin/drush site:install standard --site-name="Honeypot Test" --account-pass admin -y && chown -R www-data:www-data web/sites/default/files'
      ```
 
   1. Log into `http://localhost/` with `admin`/`admin` and enable Honeypot (and the Testing module, if desired).
 
 ## Credit
 
-The Honeypot module was originally developed by Jeff Geerling of Midwestern Mac,
-LLC (midwesternmac.com), and sponsored by Flocknote (flocknote.com).
+The Honeypot module was originally developed by Jeff Geerling of [Midwestern Mac,
+LLC](https://www.midwesternmac.com/), and sponsored by [Flocknote](https://flocknote.com).
