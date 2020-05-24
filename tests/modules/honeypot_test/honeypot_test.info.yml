@@ -2,5 +2,6 @@ name: Honeypot Test
 type: module
 description: Support module for Honeypot internal testing purposes.
 core: 8.x
+core_version_requirement: ^8 || ^9
 package: Testing
 hidden: true
